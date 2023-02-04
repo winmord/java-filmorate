@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.UserAlreadyExistsException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -10,8 +11,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
+    private int autoGeneratingId = 0;
 
     @GetMapping
     public Collection<User> getAllUsers() {
@@ -19,18 +22,24 @@ public class UserController {
     }
 
     @PostMapping
-    public User addUser(@RequestBody User user) {
-        if (users.containsKey(user.getId())) {
-            throw new UserAlreadyExistsException("Пользователь с id " + user.getId() + " уже существует");
+    public User addUser(@Valid @RequestBody User user) {
+        user.setId(++autoGeneratingId);
+
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
         }
 
         users.put(user.getId(), user);
+        log.info("Добавлен новый пользователь: {}", user);
         return user;
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user) {
+    public User updateUser(@Valid @RequestBody User user) {
+        if (user.getId() == null || !users.containsKey(user.getId())) throw new RuntimeException();
+
         users.put(user.getId(), user);
+        log.info("Пользователь обновлён: {}", user);
         return user;
     }
 }
