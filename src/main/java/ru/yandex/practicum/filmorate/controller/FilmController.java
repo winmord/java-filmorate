@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
@@ -27,7 +29,7 @@ public class FilmController {
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
         if (film.getReleaseDate().isBefore(FILM_DEVELOPMENT_DATE)) {
-            throw new RuntimeException();
+            throw new ValidationException("Дата релиза не может быть раньше, чем дата создания кинематографа");
         }
 
         film.setId(++autoGeneratingId);
@@ -38,7 +40,9 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
-        if (film.getId() == null || !films.containsKey(film.getId())) throw new RuntimeException();
+        if (film.getId() == null || !films.containsKey(film.getId())) {
+            throw new FilmDoesNotExistException("Не существует фильма с id=" + film.getId());
+        }
 
         films.put(film.getId(), film);
         log.info("Фильм обновлён: {}", film);

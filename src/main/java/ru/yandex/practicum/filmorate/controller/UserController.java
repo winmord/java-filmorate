@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -36,7 +37,9 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        if (user.getId() == null || !users.containsKey(user.getId())) throw new RuntimeException();
+        if (user.getId() == null || !users.containsKey(user.getId())) {
+            throw new UserDoesNotExistException("Не существует пользователя с id=" + user.getId());
+        }
 
         users.put(user.getId(), user);
         log.info("Пользователь обновлён: {}", user);
