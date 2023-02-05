@@ -2,18 +2,22 @@ package ru.yandex.practicum.filmorate.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.time.Month;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -22,8 +26,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class FilmControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
-    @Autowired
+
     private MockMvc mockMvc;
+
+    @BeforeEach
+    public void setup() {
+        mockMvc = MockMvcBuilders.standaloneSetup(FilmController.class).build();
+    }
 
     @Test
     void getAllFilms() throws Exception {
@@ -73,20 +82,23 @@ class FilmControllerTest {
 
     @Test
     void addFilm() throws Exception {
+        LocalDate releaseDate = LocalDate.of(1946, Month.AUGUST, 20);
         Film film = Film.builder()
                 .name("film")
                 .description("description")
-                .releaseDate(LocalDate.of(1946, Month.AUGUST, 20))
+                .releaseDate(releaseDate)
                 .duration(100)
                 .build();
 
-        mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                         post("/films")
                                 .content(objectMapper.writeValueAsString(film))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(film.toBuilder().id(1).build())));
+                .andReturn();
+
+        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), Film.class), film.toBuilder().id(1).build());
 
         mockMvc.perform(
                         post("/films")
@@ -148,12 +160,14 @@ class FilmControllerTest {
                 )
                 .andExpect(status().isOk());
 
-        mockMvc.perform(
+        MvcResult result = mockMvc.perform(
                         put("/films")
                                 .content(objectMapper.writeValueAsString(film.toBuilder().id(1).name("new name").build()))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(film.toBuilder().id(1).name("new name").build())));
+                .andReturn();
+
+        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), Film.class), film.toBuilder().id(1).name("new name").build());
     }
 }
