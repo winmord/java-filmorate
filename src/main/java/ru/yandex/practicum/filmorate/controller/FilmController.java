@@ -20,6 +20,7 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> getAllFilms() {
+        log.info("Запрошено {} фильмов", films.size());
         return films.values();
     }
 

@@ -19,6 +19,7 @@ public class UserController {
 
     @GetMapping
     public Collection<User> getAllUsers() {
+        log.info("Запрошено {} пользователей", users.size());
         return users.values();
     }
 
@@ -26,10 +27,7 @@ public class UserController {
     public User addUser(@Valid @RequestBody User user) {
         user.setId(++autoGeneratingId);
 
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-
+        checkIfUserNameIsEmpty(user);
         users.put(user.getId(), user);
         log.info("Добавлен новый пользователь: {}", user);
         return user;
@@ -41,8 +39,16 @@ public class UserController {
             throw new UserDoesNotExistException("Не существует пользователя с id=" + user.getId());
         }
 
+        checkIfUserNameIsEmpty(user);
         users.put(user.getId(), user);
         log.info("Пользователь обновлён: {}", user);
         return user;
+    }
+
+    private void checkIfUserNameIsEmpty(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            log.info("Имя пользователя пустое. Вместо имени будет использоваться логин {}", user.getLogin());
+            user.setName(user.getLogin());
+        }
     }
 }
