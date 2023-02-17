@@ -11,13 +11,14 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class User {
-    Integer id;
+    Long id;
 
     @NotNull
     @NotBlank
@@ -34,4 +35,6 @@ public class User {
     @NotNull
     @PastOrPresent
     LocalDate birthday;
+
+    Set<Long> friends;
 }

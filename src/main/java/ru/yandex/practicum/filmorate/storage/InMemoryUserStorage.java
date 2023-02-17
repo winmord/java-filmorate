@@ -9,8 +9,8 @@ import java.util.Map;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    private final Map<Integer, User> users = new HashMap<>();
-    private int autoGeneratingId = 0;
+    private final Map<Long, User> users = new HashMap<>();
+    private Long autoGeneratingId = 0L;
 
 
     @Override
@@ -19,7 +19,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getById(Integer id) {
+    public User getById(Long id) {
         return users.get(id);
     }
 
@@ -33,7 +33,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User delete(Integer id) {
+    public User delete(Long id) {
         return users.remove(id);
     }
 

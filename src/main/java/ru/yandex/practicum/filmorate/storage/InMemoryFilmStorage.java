@@ -9,8 +9,8 @@ import java.util.Map;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int autoGeneratingId = 0;
+    private final Map<Long, Film> films = new HashMap<>();
+    private Long autoGeneratingId = 0L;
 
     @Override
     public Collection<Film> getAll() {
@@ -18,7 +18,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film getById(Integer id) {
+    public Film getById(Long id) {
         return films.get(id);
     }
 
@@ -30,7 +30,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film delete(Integer id) {
+    public Film delete(Long id) {
         return films.remove(id);
     }
 
