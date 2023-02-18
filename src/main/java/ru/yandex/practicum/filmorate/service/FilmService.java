@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
@@ -9,6 +10,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.reverseOrder;
 
 @Service
 public class FilmService {
@@ -45,15 +48,19 @@ public class FilmService {
     public Film removeLike(Long filmId, Long userId) {
         Film film = filmStorage.getById(filmId);
         Set<Long> likes = film.getLikes();
+
+        if (!likes.contains(userId)) {
+            throw new UserDoesNotExistException("Не существует лайка от пользователя " + userId);
+        }
+
         likes.remove(userId);
 
         return filmStorage.update(film.toBuilder().likes(likes).build());
     }
 
     public List<Film> getTop(Integer count) {
-        if (count == null) count = 10;
         return filmStorage.getAll().stream()
-                .sorted(Comparator.comparingInt(o -> o.getLikes().size()))
+                .sorted(reverseOrder(Comparator.comparingInt(o -> o.getLikes().size())))
                 .limit(count)
                 .collect(Collectors.toList());
     }
