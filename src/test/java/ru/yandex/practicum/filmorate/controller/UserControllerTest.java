@@ -13,6 +13,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -32,7 +35,9 @@ class UserControllerTest {
 
     @BeforeEach
     public void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(UserController.class).build();
+        UserStorage userStorage = new InMemoryUserStorage();
+        UserService userService = new UserService(userStorage);
+        mockMvc = MockMvcBuilders.standaloneSetup(new UserController(userService)).build();
     }
 
     @Test
@@ -159,7 +164,7 @@ class UserControllerTest {
                                 put("/users")
                                         .content(objectMapper.writeValueAsString(user))
                                         .contentType(MediaType.APPLICATION_JSON)
-                        )).hasCauseInstanceOf(UserDoesNotExistException.class).hasMessageContaining("Не существует пользователя с id=null");
+                        )).hasCauseInstanceOf(UserDoesNotExistException.class).hasMessageContaining("Пользователь null не существует");
 
         mockMvc.perform(
                         post("/users")

@@ -13,6 +13,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -31,7 +34,9 @@ class FilmControllerTest {
 
     @BeforeEach
     public void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(FilmController.class).build();
+        FilmStorage filmStorage = new InMemoryFilmStorage();
+        FilmService filmService = new FilmService(filmStorage);
+        mockMvc = MockMvcBuilders.standaloneSetup(new FilmController(filmService)).build();
     }
 
     @Test
@@ -151,7 +156,7 @@ class FilmControllerTest {
                                 put("/films")
                                         .content(objectMapper.writeValueAsString(film))
                                         .contentType(MediaType.APPLICATION_JSON)
-                        )).hasCauseInstanceOf(FilmDoesNotExistException.class).hasMessageContaining("Не существует фильма с id=null");
+                        )).hasCauseInstanceOf(FilmDoesNotExistException.class).hasMessageContaining("Фильм null не существует");
 
         mockMvc.perform(
                         post("/films")
