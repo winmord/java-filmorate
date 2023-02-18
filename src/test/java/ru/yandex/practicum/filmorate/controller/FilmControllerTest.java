@@ -98,7 +98,7 @@ class FilmControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), Film.class), film.toBuilder().id(1).build());
+        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), Film.class), film.toBuilder().id(1L).build());
 
         mockMvc.perform(
                         post("/films")
@@ -162,12 +162,12 @@ class FilmControllerTest {
 
         MvcResult result = mockMvc.perform(
                         put("/films")
-                                .content(objectMapper.writeValueAsString(film.toBuilder().id(1).name("new name").build()))
+                                .content(objectMapper.writeValueAsString(film.toBuilder().id(1L).name("new name").build()))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
 
-        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), Film.class), film.toBuilder().id(1).name("new name").build());
+        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), Film.class), film.toBuilder().id(1L).name("new name").build());
     }
 }

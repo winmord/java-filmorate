@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -20,13 +21,16 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getById(Long id) {
+        if (!users.containsKey(id)) {
+            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", id));
+        }
+
         return users.get(id);
     }
 
     @Override
     public User create(User user) {
         user.setId(++autoGeneratingId);
-
         checkIfUserNameIsEmpty(user);
         users.put(user.getId(), user);
         return user;
@@ -39,6 +43,10 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
+        if (!users.containsKey(user.getId())) {
+            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", user.getId()));
+        }
+
         checkIfUserNameIsEmpty(user);
         users.put(user.getId(), user);
         return user;

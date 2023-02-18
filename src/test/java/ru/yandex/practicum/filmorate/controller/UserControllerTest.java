@@ -98,7 +98,7 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), User.class), user.toBuilder().id(1).build());
+        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), User.class), user.toBuilder().id(1L).build());
 
         mockMvc.perform(
                         post("/users")
@@ -170,12 +170,12 @@ class UserControllerTest {
 
         MvcResult result = mockMvc.perform(
                         put("/users")
-                                .content(objectMapper.writeValueAsString(user.toBuilder().id(1).name("new name").build()))
+                                .content(objectMapper.writeValueAsString(user.toBuilder().id(1L).name("new name").build()))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
 
-        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), User.class), user.toBuilder().id(1).name("new name").build());
+        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), User.class), user.toBuilder().id(1L).name("new name").build());
     }
 }
