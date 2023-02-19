@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import ru.yandex.practicum.filmorate.validator.FilmReleaseDateConstraint;
 
@@ -32,5 +33,6 @@ public class Film {
     @Positive
     Integer duration;
 
+    @JsonIgnore
     Set<Long> likes = new HashSet<>();
 }
