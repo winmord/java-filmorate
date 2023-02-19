@@ -19,6 +19,7 @@ import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -93,6 +94,7 @@ class FilmControllerTest {
                 .description("description")
                 .releaseDate(releaseDate)
                 .duration(100)
+                .likes(new HashSet<>())
                 .build();
 
         MvcResult result = mockMvc.perform(
@@ -148,6 +150,7 @@ class FilmControllerTest {
                 .description("description")
                 .releaseDate(LocalDate.of(1946, Month.AUGUST, 20))
                 .duration(100)
+                .likes(new HashSet<>())
                 .build();
 
         Assertions
