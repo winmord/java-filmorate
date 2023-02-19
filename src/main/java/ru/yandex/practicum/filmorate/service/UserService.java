@@ -40,8 +40,8 @@ public class UserService {
         Set<Long> friendFriends = friend.getFriends();
         friendFriends.add(userId);
 
-        userStorage.update(friend.toBuilder().friends(friendFriends).build());
-        return userStorage.update(user.toBuilder().friends(userFriends).build());
+        userStorage.update(friend);
+        return userStorage.update(user);
     }
 
     public User deleteFriend(Long userId, Long friendId) {
@@ -54,8 +54,8 @@ public class UserService {
         Set<Long> friendFriends = friend.getFriends();
         friendFriends.remove(userId);
 
-        userStorage.update(friend.toBuilder().friends(friendFriends).build());
-        return userStorage.update(user.toBuilder().friends(userFriends).build());
+        userStorage.update(friend);
+        return userStorage.update(user);
     }
 
     public List<User> getCommonFriends(Long userId, Long friendId) {

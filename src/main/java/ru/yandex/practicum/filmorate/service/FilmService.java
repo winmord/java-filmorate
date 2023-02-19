@@ -42,7 +42,7 @@ public class FilmService {
         Set<Long> likes = film.getLikes();
         likes.add(userId);
 
-        return filmStorage.update(film.toBuilder().likes(likes).build());
+        return filmStorage.update(film);
     }
 
     public Film removeLike(Long filmId, Long userId) {
@@ -55,7 +55,7 @@ public class FilmService {
 
         likes.remove(userId);
 
-        return filmStorage.update(film.toBuilder().likes(likes).build());
+        return filmStorage.update(film);
     }
 
     public List<Film> getTop(Integer count) {
