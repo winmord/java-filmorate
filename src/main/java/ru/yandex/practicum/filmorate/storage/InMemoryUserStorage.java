@@ -4,57 +4,32 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 @Component
-public class InMemoryUserStorage implements UserStorage {
-    private final Map<Long, User> users = new HashMap<>();
-    private Long autoGeneratingId = 0L;
-
-
+public class InMemoryUserStorage extends AbstractStorage<User> implements UserStorage {
     @Override
-    public Collection<User> getAll() {
-        return users.values();
+    public void validate(Long id) {
+        if (notContainsId(id)) {
+            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", id));
+        }
     }
 
     @Override
-    public User getById(Long id) {
-        if (!users.containsKey(id)) {
-            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", id));
+    protected void fix(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
         }
-
-        return users.get(id);
     }
 
     @Override
     public User create(User user) {
-        user.setId(++autoGeneratingId);
-        checkIfUserNameIsEmpty(user);
-        users.put(user.getId(), user);
+        user.setId(getNextId());
+        super.create(user.getId(), user);
         return user;
-    }
-
-    @Override
-    public User delete(Long id) {
-        return users.remove(id);
     }
 
     @Override
     public User update(User user) {
-        if (!users.containsKey(user.getId())) {
-            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", user.getId()));
-        }
-
-        checkIfUserNameIsEmpty(user);
-        users.put(user.getId(), user);
+        super.update(user.getId(), user);
         return user;
-    }
-
-    private void checkIfUserNameIsEmpty(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
     }
 }
