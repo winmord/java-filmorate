@@ -13,9 +13,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,7 +36,9 @@ class UserControllerTest {
 
     @BeforeEach
     public void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(UserController.class).build();
+        UserStorage userStorage = new InMemoryUserStorage();
+        UserService userService = new UserService(userStorage);
+        mockMvc = MockMvcBuilders.standaloneSetup(new UserController(userService)).build();
     }
 
     @Test
@@ -88,6 +94,7 @@ class UserControllerTest {
                 .name("name")
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
+                .friends(new HashSet<>())
                 .build();
 
         MvcResult result = mockMvc.perform(
@@ -98,7 +105,7 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), User.class), user.toBuilder().id(1).build());
+        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), User.class), user.toBuilder().id(1L).build());
 
         mockMvc.perform(
                         post("/users")
@@ -151,6 +158,7 @@ class UserControllerTest {
                 .name("name")
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
+                .friends(new HashSet<>())
                 .build();
 
         Assertions
@@ -159,7 +167,7 @@ class UserControllerTest {
                                 put("/users")
                                         .content(objectMapper.writeValueAsString(user))
                                         .contentType(MediaType.APPLICATION_JSON)
-                        )).hasCauseInstanceOf(UserDoesNotExistException.class).hasMessageContaining("Не существует пользователя с id=null");
+                        )).hasCauseInstanceOf(UserDoesNotExistException.class).hasMessageContaining("Пользователь null не существует");
 
         mockMvc.perform(
                         post("/users")
@@ -170,12 +178,12 @@ class UserControllerTest {
 
         MvcResult result = mockMvc.perform(
                         put("/users")
-                                .content(objectMapper.writeValueAsString(user.toBuilder().id(1).name("new name").build()))
+                                .content(objectMapper.writeValueAsString(user.toBuilder().id(1L).name("new name").build()))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
 
-        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), User.class), user.toBuilder().id(1).name("new name").build());
+        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), User.class), user.toBuilder().id(1L).name("new name").build());
     }
 }

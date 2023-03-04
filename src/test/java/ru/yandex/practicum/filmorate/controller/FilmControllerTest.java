@@ -13,9 +13,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -31,7 +35,9 @@ class FilmControllerTest {
 
     @BeforeEach
     public void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(FilmController.class).build();
+        FilmStorage filmStorage = new InMemoryFilmStorage();
+        FilmService filmService = new FilmService(filmStorage);
+        mockMvc = MockMvcBuilders.standaloneSetup(new FilmController(filmService)).build();
     }
 
     @Test
@@ -88,6 +94,7 @@ class FilmControllerTest {
                 .description("description")
                 .releaseDate(releaseDate)
                 .duration(100)
+                .likes(new HashSet<>())
                 .build();
 
         MvcResult result = mockMvc.perform(
@@ -98,7 +105,7 @@ class FilmControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), Film.class), film.toBuilder().id(1).build());
+        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), Film.class), film.toBuilder().id(1L).build());
 
         mockMvc.perform(
                         post("/films")
@@ -143,6 +150,7 @@ class FilmControllerTest {
                 .description("description")
                 .releaseDate(LocalDate.of(1946, Month.AUGUST, 20))
                 .duration(100)
+                .likes(new HashSet<>())
                 .build();
 
         Assertions
@@ -151,7 +159,7 @@ class FilmControllerTest {
                                 put("/films")
                                         .content(objectMapper.writeValueAsString(film))
                                         .contentType(MediaType.APPLICATION_JSON)
-                        )).hasCauseInstanceOf(FilmDoesNotExistException.class).hasMessageContaining("Не существует фильма с id=null");
+                        )).hasCauseInstanceOf(FilmDoesNotExistException.class).hasMessageContaining("Фильм null не существует");
 
         mockMvc.perform(
                         post("/films")
@@ -162,12 +170,12 @@ class FilmControllerTest {
 
         MvcResult result = mockMvc.perform(
                         put("/films")
-                                .content(objectMapper.writeValueAsString(film.toBuilder().id(1).name("new name").build()))
+                                .content(objectMapper.writeValueAsString(film.toBuilder().id(1L).name("new name").build()))
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
                 .andReturn();
 
-        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), Film.class), film.toBuilder().id(1).name("new name").build());
+        assertEquals(objectMapper.readValue(result.getResponse().getContentAsString(), Film.class), film.toBuilder().id(1L).name("new name").build());
     }
 }
