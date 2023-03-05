@@ -13,7 +13,7 @@
   ```sql
     SELECT *
     FROM user
-    WHERE user.id = target_id;
+    WHERE user.user_id = target_id;
   ```
 - Получить друзей пользователя
   ```sql
@@ -21,7 +21,7 @@
     FROM user
     WHERE user.user_id IN (SELECT friend_id
                            FROM friendship
-                           WHERE user.id = target_id);
+                           WHERE friendship.user_id = target_id);
   ```
 - Получить все фильмы
   ```sql
@@ -32,7 +32,7 @@
   ```sql
     SELECT *
     FROM film
-    WHERE film.id = target_id;
+    WHERE film.film_id = target_id;
   ```
 - Получить Топ-10 фильмов по количеству лайков
   ```sql
