@@ -7,42 +7,61 @@
 - Получить всех пользователей
   ```sql
     SELECT *
-    FROM user;
+    FROM user
+    WHERE user.deleted_at ISNULL;
   ```
 - Получить пользователя по id
   ```sql
     SELECT *
     FROM user
-    WHERE user.user_id = target_id;
+    WHERE user.user_id = target_id
+      AND user.deleted_at ISNULL;
   ```
-- Получить друзей пользователя
+- Получить всех друзей пользователя (подтверждённых и неподтверждённых)
   ```sql
     SELECT *
     FROM user
     WHERE user.user_id IN (SELECT friend_id
                            FROM friendship
-                           WHERE friendship.user_id = target_id);
+                           WHERE friendship.user_id = target_id
+                             AND friendship.deleted_at ISNULL)
+      AND user.deleted_at ISNULL;
+  ```
+- Получить только подтверждённых друзей пользователя
+  ```sql
+    SELECT *
+    FROM user
+    WHERE user.user_id IN (SELECT friend_id
+                           FROM friendship
+                           WHERE friendship.user_id = target_id
+                             AND friendship.confirmed_at NOTNULL
+                             AND friendship.deleted_at ISNULL)
+      AND user.deleted_at ISNULL;
   ```
 - Получить все фильмы
   ```sql
     SELECT *
-    FROM film;
+    FROM film
+    WHERE film.deleted_at ISNULL;
   ```
 - Получить фильм по id
   ```sql
     SELECT *
     FROM film
-    WHERE film.film_id = target_id;
+    WHERE film.film_id = target_id
+      AND user.deleted_at ISNULL;
   ```
 - Получить Топ-10 фильмов по количеству лайков
   ```sql
     SELECT film.*
     FROM (SELECT film_like.film_id
           FROM film_like
+          WHERE film_like.deleted_at ISNULL
           GROUP BY film_like.film_id
           ORDER BY count(film_like.film_id) DESC
           LIMIT 10) AS top
-    INNER JOIN film ON top.film_id = film.film_id;
+    INNER JOIN film ON top.film_id = film.film_id
+    WHERE film.deleted_at ISNULL;
   ```
   
   
