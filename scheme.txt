@@ -1,0 +1,53 @@
+https://app.quickdatabasediagrams.com/#/
+
+"genre"
+--
+"genre_id" int PK
+"name" varchar
+
+"film_genre"
+--
+"film_id" int PK FK >- "film"."film_id"
+"genre_id" int FK >- "genre"."genre_id"
+
+"mpa_rating"
+--
+"mpa_rating_id" int PK
+"name" varchar
+"description" varchar
+
+"film"
+--
+"film_id" int PK
+"name" varchar
+"description" varchar
+"release_date" date
+"duration" int
+"mpa_rating_id" int FK >- "mpa_rating"."mpa_rating_id"
+"created_at" timestamp
+"deleted_at" timestamp
+
+"user"
+--
+"user_id" int PK
+"email" varchar
+"login" varchar
+"name" varchar
+"birthday" date
+"created_at" timestamp
+"deleted_at" timestamp
+
+"friendship"
+--
+"user_id" int PK FK >- "user"."user_id"
+"friend_id" int PK FK >- "user"."user_id"
+"created_at" timestamp
+"confirmed_at" timestamp
+"deleted_at" timestamp
+
+"film_like"
+--
+"film_id" int PK FK >- "film"."film_id"
+"user_id" int PK FK >- "user"."user_id"
+"created_at" timestamp
+"deleted_at" timestamp
