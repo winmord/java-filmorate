@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.MpaDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
 
@@ -19,6 +20,10 @@ public class MpaService {
     }
 
     public Mpa getMpaById(Long id) {
-        return mpaDbStorage.getById(id);
+        try {
+            return mpaDbStorage.getById(id);
+        } catch (Exception e) {
+            throw new MpaDoesNotExistException(String.format("MPA рейтинг %s не существует", id));
+        }
     }
 }

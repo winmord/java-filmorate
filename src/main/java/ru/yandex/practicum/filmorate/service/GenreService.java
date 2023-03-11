@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.GenreDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 
@@ -19,6 +20,10 @@ public class GenreService {
     }
 
     public Genre getGenreById(Long id) {
-        return genreDbStorage.getById(id);
+        try {
+            return genreDbStorage.getById(id);
+        } catch (Exception e) {
+            throw new GenreDoesNotExistException(String.format("Жанр %s не существует", id));
+        }
     }
 }
