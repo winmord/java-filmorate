@@ -49,15 +49,24 @@ public class FilmDbStorage implements FilmStorage {
         Long filmId = simpleJdbcInsert.executeAndReturnKey(filmToMap(film)).longValue();
         film.setId(filmId);
 
-        simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+        createFilmGenreReference(film);
+
+        return film;
+    }
+
+    private void createFilmGenreReference(Film film) {
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("film_genre")
                 .usingGeneratedKeyColumns("film_id");
 
         for (Genre genre : film.getGenres()) {
             simpleJdbcInsert.execute(Map.of("film_id", film.getId().toString(), "genre_id", genre.getId()));
         }
+    }
 
-        return film;
+    private void deleteFilmGenreReference(Long id) {
+        String sqlQuery = "DELETE FROM film_genre WHERE film.film_id = ?";
+        jdbcTemplate.update(sqlQuery, id);
     }
 
     @Override
@@ -86,6 +95,9 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration(),
                 film.getMpaRatingId(),
                 film.getId());
+
+        deleteFilmGenreReference(film.getId());
+        createFilmGenreReference(film);
 
         return film;
     }
