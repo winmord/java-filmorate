@@ -4,6 +4,8 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.Collection;
+
 @Component
 public class InMemoryFilmStorage extends AbstractStorage<Film> implements FilmStorage {
     @Override
@@ -24,5 +26,20 @@ public class InMemoryFilmStorage extends AbstractStorage<Film> implements FilmSt
     public Film update(Film film) {
         super.update(film.getId(), film);
         return film;
+    }
+
+    @Override
+    public Film addLike(Long filmId, Long userId) {
+        return null;
+    }
+
+    @Override
+    public Film removeLike(Long filmId, Long userId) {
+        return null;
+    }
+
+    @Override
+    public Collection<Film> getTop(Integer topCount) {
+        return null;
     }
 }

@@ -104,6 +104,63 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
+    public Film addLike(Long filmId, Long userId) {
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("film_like")
+                .usingColumns("film_id", "user_id", "created_at");
+
+
+        simpleJdbcInsert.execute(
+                Map.of("film_id", filmId,
+                        "user_id", userId,
+                        "created_at", Instant.now()
+                )
+        );
+
+        return getById(filmId);
+    }
+
+    @Override
+    public Film removeLike(Long filmId, Long userId) {
+        String sqlQuery = "UPDATE film_like " +
+                "SET film_like.deleted_at = ? " +
+                "WHERE film_like.film_id = ? " +
+                "AND film_like.user_id = ? " +
+                "AND film_like.deleted_at IS NULL";
+
+        jdbcTemplate.update(sqlQuery,
+                Instant.now(),
+                filmId,
+                userId);
+
+        return getById(filmId);
+    }
+
+    @Override
+    public Collection<Film> getTop(Integer topCount) {
+        String sqlQuery = "SELECT film.* FROM " +
+                "(SELECT film_like.film_id " +
+                "FROM film_like " +
+                "WHERE film_like.deleted_at IS NULL " +
+                "GROUP BY film_like.film_id " +
+                "ORDER BY count(film_like.film_id) DESC) AS top " +
+                "INNER JOIN film ON top.film_id = film.film_id " +
+                "WHERE film.deleted_at IS NULL " +
+                "UNION " +
+                "SELECT * " +
+                "FROM film " +
+                "WHERE film.film_id NOT IN " +
+                "(SELECT film_like.film_id " +
+                "FROM film_like " +
+                "WHERE film_like.deleted_at IS NULL " +
+                "GROUP BY film_like.film_id " +
+                "ORDER BY count(film_like.film_id) DESC) " +
+                "AND film.deleted_at IS NULL " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), topCount);
+    }
+
     private Map<String, Object> filmToMap(Film film) {
         Map<String, Object> values = new HashMap<>();
         values.put("name", film.getName());

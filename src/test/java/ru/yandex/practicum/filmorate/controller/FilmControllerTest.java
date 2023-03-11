@@ -15,9 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -39,8 +37,9 @@ class FilmControllerTest {
     public void setup() {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         FilmStorage filmStorage = new InMemoryFilmStorage();
+        UserStorage userStorage = new InMemoryUserStorage();
         MpaDbStorage mpaDbStorage = new MpaDbStorage(jdbcTemplate);
-        FilmService filmService = new FilmService(filmStorage, mpaDbStorage);
+        FilmService filmService = new FilmService(filmStorage, userStorage, mpaDbStorage);
         mockMvc = MockMvcBuilders.standaloneSetup(new FilmController(filmService)).build();
     }
 

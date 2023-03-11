@@ -7,21 +7,22 @@ import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.Collections.reverseOrder;
+import java.util.Collection;
+import java.util.HashSet;
 
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
     private final MpaDbStorage mpaDbStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, MpaDbStorage mpaDbStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage, MpaDbStorage mpaDbStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
         this.mpaDbStorage = mpaDbStorage;
     }
 
@@ -43,7 +44,6 @@ public class FilmService {
 
     public Film getFilmById(Long id) {
         try {
-
             Film film = filmStorage.getById(id);
             film.setMpa(mpaDbStorage.getById(film.getMpaRatingId()));
             film.setGenres(new HashSet<>());
@@ -63,30 +63,19 @@ public class FilmService {
     }
 
     public Film addLike(Long filmId, Long userId) {
-        Film film = filmStorage.getById(filmId);
-        Set<Long> likes = film.getLikes();
-        likes.add(userId);
-
-        return filmStorage.update(film);
+        return filmStorage.addLike(filmId, userId);
     }
 
     public Film removeLike(Long filmId, Long userId) {
-        Film film = filmStorage.getById(filmId);
-        Set<Long> likes = film.getLikes();
-
-        if (!likes.contains(userId)) {
-            throw new UserDoesNotExistException("Не существует лайка от пользователя " + userId);
+        try {
+            userStorage.getById(userId);
+            return filmStorage.removeLike(filmId, userId);
+        } catch (Exception e) {
+            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", userId));
         }
-
-        likes.remove(userId);
-
-        return filmStorage.update(film);
     }
 
-    public List<Film> getTop(Integer count) {
-        return getAllFilms().stream()
-                .sorted(reverseOrder(Comparator.comparingInt(o -> o.getLikes().size())))
-                .limit(count)
-                .collect(Collectors.toList());
+    public Collection<Film> getTop(Integer count) {
+        return filmStorage.getTop(count);
     }
 }
