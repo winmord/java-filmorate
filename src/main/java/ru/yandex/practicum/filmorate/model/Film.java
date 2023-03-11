@@ -36,6 +36,8 @@ public class Film {
 
     @JsonIgnore
     Set<Long> likes = new HashSet<>();
+    Mpa mpa;
+    Set<Genre> genres;
 
     Integer mpaRatingId;
     Instant createdAt;
