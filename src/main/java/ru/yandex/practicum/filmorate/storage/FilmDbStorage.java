@@ -81,7 +81,7 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
-    public Map<String, Object> filmToMap(Film film) {
+    private Map<String, Object> filmToMap(Film film) {
         Map<String, Object> values = new HashMap<>();
         values.put("name", film.getName());
         values.put("description", film.getDescription());

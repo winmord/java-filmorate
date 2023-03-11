@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -21,6 +22,11 @@ public class UserService {
     }
 
     public User addUser(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+
+        user.setCreatedAt(Instant.now());
         return userStorage.create(user);
     }
 
