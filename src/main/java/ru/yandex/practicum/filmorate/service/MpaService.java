@@ -19,7 +19,7 @@ public class MpaService {
         return mpaDbStorage.getAll();
     }
 
-    public Mpa getMpaById(Long id) {
+    public Mpa getMpaById(Integer id) {
         try {
             return mpaDbStorage.getById(id);
         } catch (Exception e) {

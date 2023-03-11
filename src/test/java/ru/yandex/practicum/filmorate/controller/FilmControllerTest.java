@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -16,6 +17,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -35,8 +37,10 @@ class FilmControllerTest {
 
     @BeforeEach
     public void setup() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
         FilmStorage filmStorage = new InMemoryFilmStorage();
-        FilmService filmService = new FilmService(filmStorage);
+        MpaDbStorage mpaDbStorage = new MpaDbStorage(jdbcTemplate);
+        FilmService filmService = new FilmService(filmStorage, mpaDbStorage);
         mockMvc = MockMvcBuilders.standaloneSetup(new FilmController(filmService)).build();
     }
 

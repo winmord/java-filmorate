@@ -2,15 +2,14 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.reverseOrder;
@@ -18,14 +17,23 @@ import static java.util.Collections.reverseOrder;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final MpaDbStorage mpaDbStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage, MpaDbStorage mpaDbStorage) {
         this.filmStorage = filmStorage;
+        this.mpaDbStorage = mpaDbStorage;
     }
 
     public Collection<Film> getAllFilms() {
-        return filmStorage.getAll();
+        Collection<Film> films = filmStorage.getAll();
+
+        for (Film film : films) {
+            film.setMpa(mpaDbStorage.getById(film.getMpaRatingId()));
+            film.setGenres(new HashSet<>());
+        }
+
+        return films;
     }
 
     public Film addFilm(Film film) {
@@ -34,11 +42,24 @@ public class FilmService {
     }
 
     public Film getFilmById(Long id) {
-        return filmStorage.getById(id);
+        try {
+
+            Film film = filmStorage.getById(id);
+            film.setMpa(mpaDbStorage.getById(film.getMpaRatingId()));
+            film.setGenres(new HashSet<>());
+
+            return film;
+        } catch (Exception e) {
+            throw new FilmDoesNotExistException(String.format("Фильм %s не существует", id));
+        }
     }
 
     public Film updateFilm(Film film) {
-        return filmStorage.update(film);
+        try {
+            return filmStorage.update(film);
+        } catch (Exception e) {
+            throw new FilmDoesNotExistException(String.format("Фильм %s не существует", film.getId()));
+        }
     }
 
     public Film addLike(Long filmId, Long userId) {
@@ -63,7 +84,7 @@ public class FilmService {
     }
 
     public List<Film> getTop(Integer count) {
-        return filmStorage.getAll().stream()
+        return getAllFilms().stream()
                 .sorted(reverseOrder(Comparator.comparingInt(o -> o.getLikes().size())))
                 .limit(count)
                 .collect(Collectors.toList());

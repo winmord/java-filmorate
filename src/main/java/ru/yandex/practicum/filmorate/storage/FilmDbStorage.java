@@ -55,9 +55,11 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private void createFilmGenreReference(Film film) {
+        if (film.getGenres() == null) return;
+
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("film_genre")
-                .usingColumns("film_id");
+                .usingColumns("film_id", "genre_id");
 
         for (Genre genre : film.getGenres()) {
             simpleJdbcInsert.execute(Map.of("film_id", film.getId().toString(), "genre_id", genre.getId()));
@@ -93,7 +95,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
-                film.getMpaRatingId(),
+                film.getMpa().getId(),
                 film.getId());
 
         deleteFilmGenreReference(film.getId());
@@ -108,7 +110,7 @@ public class FilmDbStorage implements FilmStorage {
         values.put("description", film.getDescription());
         values.put("release_date", film.getReleaseDate());
         values.put("duration", film.getDuration());
-        values.put("mpa_rating_id", film.getMpaRatingId());
+        values.put("mpa_rating_id", film.getMpa().getId());
         values.put("created_at", film.getCreatedAt());
         values.put("deleted_at", film.getDeletedAt());
         return values;

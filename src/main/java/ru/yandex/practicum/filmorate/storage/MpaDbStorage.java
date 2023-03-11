@@ -21,7 +21,7 @@ public class MpaDbStorage {
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeMpa(rs));
     }
 
-    public Mpa getById(Long id) {
+    public Mpa getById(Integer id) {
         String sqlQuery = "SELECT mpa_rating.mpa_rating_id, mpa_rating.name FROM mpa_rating WHERE mpa_rating.mpa_rating_id = ?";
         return jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeMpa(rs), id);
     }
