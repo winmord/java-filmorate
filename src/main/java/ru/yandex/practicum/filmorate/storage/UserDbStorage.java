@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 @Component
@@ -46,6 +47,8 @@ public class UserDbStorage implements UserStorage {
         Long userId = simpleJdbcInsert.executeAndReturnKey(userToMap(user)).longValue();
         user.setId(userId);
 
+        createUserFriendReference(user);
+
         return user;
     }
 
@@ -75,7 +78,55 @@ public class UserDbStorage implements UserStorage {
                 user.getBirthday(),
                 user.getId());
 
+        //deleteUserFriendReference(user.getId());
+        createUserFriendReference(user);
+
         return user;
+    }
+
+    private void createUserFriendReference(User user) {
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("friendship")
+                .usingColumns("user_id", "friend_id", "created_at");
+
+        for (Long friendId : user.getFriends()) {
+            simpleJdbcInsert.execute(
+                    Map.of("user_id", user.getId(),
+                            "friend_id", friendId,
+                            "created_at", Instant.now()
+                    )
+            );
+        }
+    }
+
+    private void deleteUserFriendReference(Long id) {
+        String sqlQuery = "DELETE FROM friendship WHERE friendship.user_id = ?";
+        jdbcTemplate.update(sqlQuery, id);
+    }
+
+    public Collection<User> getFriends(Long id) {
+        String sqlQuery = "SELECT * FROM users " +
+                "WHERE users.user_id IN (SELECT friend_id " +
+                "FROM friendship " +
+                "WHERE friendship.user_id = " + id.toString() +
+                " AND friendship.deleted_at IS NULL) " +
+                "AND users.deleted_at IS NULL;";
+
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeUser(rs));
+    }
+
+    public User deleteFriend(Long userId, Long friendId) {
+        String sqlQuery = "UPDATE friendship " +
+                "SET friendship.deleted_at = ? " +
+                "WHERE friendship.user_id = ? AND friendship.friend_id = ? " +
+                "AND friendship.deleted_at IS NULL";
+
+        jdbcTemplate.update(sqlQuery,
+                Instant.now(),
+                userId,
+                friendId);
+
+        return getById(userId);
     }
 
     private Map<String, Object> userToMap(User user) {
@@ -104,6 +155,7 @@ public class UserDbStorage implements UserStorage {
                 .login(login)
                 .name(name)
                 .birthday(birthday)
+                .friends(new HashSet<>())
                 .createdAt(createdAt)
                 .deletedAt(deletedAt == null ? null : deletedAt.toInstant())
                 .build();

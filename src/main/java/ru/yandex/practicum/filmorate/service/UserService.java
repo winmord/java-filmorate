@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -31,67 +32,48 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        return userStorage.update(user);
+        try {
+            return userStorage.update(user);
+        } catch (Exception e) {
+            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", user.getId()));
+        }
     }
 
     public User getUserById(Long id) {
-        return userStorage.getById(id);
+        try {
+            return userStorage.getById(id);
+        } catch (Exception e) {
+            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", id));
+        }
     }
 
     public User addFriend(Long userId, Long friendId) {
-        User user = userStorage.getById(userId);
-        User friend = userStorage.getById(friendId);
+        try {
+            User user = getUserById(userId);
 
-        Set<Long> userFriends = user.getFriends();
-        userFriends.add(friendId);
+            Set<Long> userFriends = user.getFriends();
+            userFriends.add(friendId);
 
-        Set<Long> friendFriends = friend.getFriends();
-        friendFriends.add(userId);
-
-        userStorage.update(friend);
-        return userStorage.update(user);
+            return userStorage.update(user);
+        } catch (Exception e) {
+            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", friendId));
+        }
     }
 
     public User deleteFriend(Long userId, Long friendId) {
-        User user = userStorage.getById(userId);
-        User friend = userStorage.getById(friendId);
-
-        Set<Long> userFriends = user.getFriends();
-        userFriends.remove(friendId);
-
-        Set<Long> friendFriends = friend.getFriends();
-        friendFriends.remove(userId);
-
-        userStorage.update(friend);
-        return userStorage.update(user);
+        return userStorage.deleteFriend(userId, friendId);
     }
 
     public List<User> getCommonFriends(Long userId, Long friendId) {
-        User user = userStorage.getById(userId);
-        User friend = userStorage.getById(friendId);
-
-        Set<Long> userFriends = new HashSet<>(user.getFriends());
-        Set<Long> friendFriends = new HashSet<>(friend.getFriends());
+        Set<User> userFriends = new HashSet<>(userStorage.getFriends(userId));
+        Set<User> friendFriends = new HashSet<>(userStorage.getFriends(friendId));
 
         userFriends.retainAll(friendFriends);
 
-        List<User> result = new ArrayList<>();
-
-        for (Long id : userFriends) {
-            result.add(userStorage.getById(id));
-        }
-
-        return result;
+        return new ArrayList<>(userFriends);
     }
 
-    public List<User> getAllFriends(Long userId) {
-        Set<Long> friendIds = userStorage.getById(userId).getFriends();
-        List<User> result = new ArrayList<>();
-
-        for (Long friendId : friendIds) {
-            result.add(userStorage.getById(friendId));
-        }
-
-        return result;
+    public Collection<User> getAllFriends(Long userId) {
+        return userStorage.getFriends(userId);
     }
 }
