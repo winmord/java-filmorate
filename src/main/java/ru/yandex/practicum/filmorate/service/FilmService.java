@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -28,6 +29,7 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
+        film.setCreatedAt(Instant.now());
         return filmStorage.create(film);
     }
 

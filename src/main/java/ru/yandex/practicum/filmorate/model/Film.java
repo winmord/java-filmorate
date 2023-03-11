@@ -8,6 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,4 +36,8 @@ public class Film {
 
     @JsonIgnore
     Set<Long> likes = new HashSet<>();
+
+    Integer mpaRatingId;
+    Instant createdAt;
+    Instant deletedAt;
 }

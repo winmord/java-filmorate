@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS film
     description   varchar   NOT NULL,
     release_date  date      NOT NULL,
     duration      INTEGER   NOT NULL,
-    mpa_rating_id INTEGER   NOT NULL REFERENCES mpa_rating (mpa_rating_id),
+    mpa_rating_id INTEGER REFERENCES mpa_rating (mpa_rating_id),
     created_at    timestamp NOT NULL,
     deleted_at    timestamp
 );
