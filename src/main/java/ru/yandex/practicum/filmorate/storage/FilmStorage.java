@@ -20,4 +20,6 @@ public interface FilmStorage {
     Film removeLike(Long filmId, Long userId);
 
     Collection<Film> getTop(Integer topCount);
+
+    Collection<Integer> getGenres(Long id);
 }

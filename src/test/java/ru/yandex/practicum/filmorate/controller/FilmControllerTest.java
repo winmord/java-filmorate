@@ -38,8 +38,8 @@ class FilmControllerTest {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         FilmStorage filmStorage = new InMemoryFilmStorage();
         UserStorage userStorage = new InMemoryUserStorage();
-        MpaDbStorage mpaDbStorage = new MpaDbStorage(jdbcTemplate);
-        FilmService filmService = new FilmService(filmStorage, userStorage, mpaDbStorage);
+        GenreDbStorage genreDbStorage = new GenreDbStorage(jdbcTemplate);
+        FilmService filmService = new FilmService(filmStorage, userStorage, genreDbStorage);
         mockMvc = MockMvcBuilders.standaloneSetup(new FilmController(filmService)).build();
     }
 

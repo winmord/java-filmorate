@@ -27,7 +27,7 @@ public class MpaDbStorage {
     }
 
     private Mpa makeMpa(ResultSet rs) throws SQLException {
-        Long id = rs.getLong("mpa_rating_id");
+        Integer id = rs.getInt("mpa_rating_id");
         String name = rs.getString("name");
 
         return Mpa.builder()

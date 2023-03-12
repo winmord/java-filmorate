@@ -21,13 +21,13 @@ public class GenreDbStorage {
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeGenre(rs));
     }
 
-    public Genre getById(Long id) {
+    public Genre getById(Integer id) {
         String sqlQuery = "SELECT * FROM genre WHERE genre.genre_id = ?";
         return jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeGenre(rs), id);
     }
 
     private Genre makeGenre(ResultSet rs) throws SQLException {
-        Long id = rs.getLong("genre_id");
+        Integer id = rs.getInt("genre_id");
         String name = rs.getString("name");
 
         return Genre.builder()

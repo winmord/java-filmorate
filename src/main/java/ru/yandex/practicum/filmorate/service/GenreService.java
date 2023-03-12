@@ -19,7 +19,7 @@ public class GenreService {
         return genreDbStorage.getAll();
     }
 
-    public Genre getGenreById(Long id) {
+    public Genre getGenreById(Integer id) {
         try {
             return genreDbStorage.getById(id);
         } catch (Exception e) {

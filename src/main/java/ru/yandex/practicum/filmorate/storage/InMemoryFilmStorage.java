@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
+import java.util.Collections;
 
 @Component
 public class InMemoryFilmStorage extends AbstractStorage<Film> implements FilmStorage {
@@ -40,6 +41,11 @@ public class InMemoryFilmStorage extends AbstractStorage<Film> implements FilmSt
 
     @Override
     public Collection<Film> getTop(Integer topCount) {
-        return null;
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Collection<Integer> getGenres(Long id) {
+        return Collections.emptyList();
     }
 }

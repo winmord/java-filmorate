@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,13 +31,20 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getAll() {
-        String sqlQuery = "SELECT * FROM film WHERE film.deleted_at IS NULL";
+        String sqlQuery = "SELECT * " +
+                "FROM film " +
+                "INNER JOIN mpa_rating ON film.mpa_rating_id = mpa_rating.mpa_rating_id " +
+                "WHERE film.deleted_at IS NULL";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs));
     }
 
     @Override
     public Film getById(Long id) {
-        String sqlQuery = "SELECT * FROM film WHERE film.film_id = ? AND film.deleted_at IS NULL";
+        String sqlQuery = "SELECT * " +
+                "FROM film " +
+                "INNER JOIN mpa_rating ON film.mpa_rating_id = mpa_rating.mpa_rating_id " +
+                "WHERE film.film_id = ? " +
+                "AND film.deleted_at IS NULL";
         return jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeFilm(rs), id);
     }
 
@@ -138,27 +146,25 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getTop(Integer topCount) {
-        String sqlQuery = "SELECT film.* FROM " +
+        String sqlQuery = "SELECT * FROM " +
                 "(SELECT film_like.film_id " +
                 "FROM film_like " +
                 "WHERE film_like.deleted_at IS NULL " +
                 "GROUP BY film_like.film_id " +
                 "ORDER BY count(film_like.film_id) DESC) AS top " +
-                "INNER JOIN film ON top.film_id = film.film_id " +
+                "RIGHT JOIN film ON top.film_id = film.film_id " +
+                "INNER JOIN mpa_rating ON film.mpa_rating_id = mpa_rating.mpa_rating_id " +
                 "WHERE film.deleted_at IS NULL " +
-                "UNION " +
-                "SELECT * " +
-                "FROM film " +
-                "WHERE film.film_id NOT IN " +
-                "(SELECT film_like.film_id " +
-                "FROM film_like " +
-                "WHERE film_like.deleted_at IS NULL " +
-                "GROUP BY film_like.film_id " +
-                "ORDER BY count(film_like.film_id) DESC) " +
-                "AND film.deleted_at IS NULL " +
+                "ORDER BY top.FILM_ID DESC " +
                 "LIMIT ?";
 
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), topCount);
+    }
+
+    @Override
+    public Collection<Integer> getGenres(Long id) {
+        String sqlQuery = "SELECT film_genre.genre_id FROM film_genre WHERE film_genre.film_id = ?";
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> rs.getInt("genre_id"), id);
     }
 
     private Map<String, Object> filmToMap(Film film) {
@@ -174,14 +180,15 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {
-        Long id = rs.getLong("film_id");
-        String name = rs.getString("name");
-        String description = rs.getString("description");
-        LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
-        Integer duration = rs.getInt("duration");
+        Long id = rs.getLong("film.film_id");
+        String name = rs.getString("film.name");
+        String description = rs.getString("film.description");
+        LocalDate releaseDate = rs.getDate("film.release_date").toLocalDate();
+        Integer duration = rs.getInt("film.duration");
         Integer mpaRatingId = rs.getInt("mpa_rating_id");
-        Instant createdAt = rs.getTimestamp("created_at").toInstant();
-        Timestamp deletedAt = rs.getTimestamp("deleted_at");
+        String mpaRatingName = rs.getString("mpa_rating.name");
+        Instant createdAt = rs.getTimestamp("film.created_at").toInstant();
+        Timestamp deletedAt = rs.getTimestamp("film.deleted_at");
 
         return Film.builder()
                 .id(id)
@@ -189,7 +196,7 @@ public class FilmDbStorage implements FilmStorage {
                 .description(description)
                 .releaseDate(releaseDate)
                 .duration(duration)
-                .mpaRatingId(mpaRatingId)
+                .mpa(new Mpa(mpaRatingId, mpaRatingName))
                 .createdAt(createdAt)
                 .deletedAt(deletedAt == null ? null : deletedAt.toInstant())
                 .build();

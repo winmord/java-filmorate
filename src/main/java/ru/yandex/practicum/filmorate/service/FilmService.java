@@ -5,33 +5,37 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
+import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-    private final MpaDbStorage mpaDbStorage;
+
+    private final GenreDbStorage genreDbStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage, MpaDbStorage mpaDbStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage, GenreDbStorage genreDbStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
-        this.mpaDbStorage = mpaDbStorage;
+        this.genreDbStorage = genreDbStorage;
     }
 
     public Collection<Film> getAllFilms() {
         Collection<Film> films = filmStorage.getAll();
 
         for (Film film : films) {
-            film.setMpa(mpaDbStorage.getById(film.getMpaRatingId()));
-            film.setGenres(new HashSet<>());
+            film.setGenres(filmStorage.getGenres(film.getId()).stream().map(genreDbStorage::getById).collect(Collectors.toSet()));
         }
 
         return films;
@@ -45,8 +49,7 @@ public class FilmService {
     public Film getFilmById(Long id) {
         try {
             Film film = filmStorage.getById(id);
-            film.setMpa(mpaDbStorage.getById(film.getMpaRatingId()));
-            film.setGenres(new HashSet<>());
+            film.setGenres(filmStorage.getGenres(id).stream().map(genreDbStorage::getById).collect(Collectors.toSet()));
 
             return film;
         } catch (Exception e) {
@@ -56,7 +59,11 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         try {
-            return filmStorage.update(film);
+            Set<Genre> genres = film.getGenres().stream()
+                    .sorted(Comparator.comparing(Genre::getId))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+
+            return filmStorage.update(film).toBuilder().genres(genres).build();
         } catch (Exception e) {
             throw new FilmDoesNotExistException(String.format("Фильм %s не существует", film.getId()));
         }
@@ -76,6 +83,12 @@ public class FilmService {
     }
 
     public Collection<Film> getTop(Integer count) {
-        return filmStorage.getTop(count);
+        Collection<Film> films = filmStorage.getTop(count);
+
+        for (Film film : films) {
+            film.setGenres(filmStorage.getGenres(film.getId()).stream().map(genreDbStorage::getById).collect(Collectors.toSet()));
+        }
+
+        return films;
     }
 }
