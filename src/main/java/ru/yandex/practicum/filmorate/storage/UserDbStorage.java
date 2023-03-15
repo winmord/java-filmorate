@@ -11,10 +11,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Primary
@@ -32,9 +29,11 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User getById(Long id) {
+    public Optional<User> getById(Long id) {
         String sqlQuery = "SELECT * FROM users WHERE users.user_id = ? AND users.deleted_at IS NULL";
-        return jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeUser(rs), id);
+        User user = jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeUser(rs), id);
+
+        return user == null ? Optional.empty() : Optional.of(user);
     }
 
     @Override
@@ -52,9 +51,9 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User delete(Long id) {
+    public Optional<User> delete(Long id) {
         String sqlQuery = "DELETE FROM users WHERE users.user_id = ? AND users.deleted_at IS NULL";
-        User user = getById(id);
+        Optional<User> user = getById(id);
         jdbcTemplate.update(sqlQuery, id);
 
         return user;
@@ -73,7 +72,6 @@ public class UserDbStorage implements UserStorage {
                 user.getBirthday(),
                 user.getId());
 
-        //deleteUserFriendReference(user.getId());
         createUserFriendReference(user);
 
         return user;
@@ -94,11 +92,6 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    private void deleteUserFriendReference(Long id) {
-        String sqlQuery = "DELETE FROM friendship WHERE friendship.user_id = ?";
-        jdbcTemplate.update(sqlQuery, id);
-    }
-
     public Collection<User> getFriends(Long id) {
         String sqlQuery = "SELECT * FROM users " +
                 "WHERE users.user_id IN (SELECT friend_id " +
@@ -110,7 +103,7 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeUser(rs));
     }
 
-    public User deleteFriend(Long userId, Long friendId) {
+    public Optional<User> deleteFriend(Long userId, Long friendId) {
         String sqlQuery = "UPDATE friendship " +
                 "SET friendship.deleted_at = ? " +
                 "WHERE friendship.user_id = ? AND friendship.friend_id = ? " +

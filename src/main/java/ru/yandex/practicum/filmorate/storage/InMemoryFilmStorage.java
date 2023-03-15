@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
 @Component
 public class InMemoryFilmStorage extends AbstractStorage<Film> implements FilmStorage {
@@ -30,12 +31,12 @@ public class InMemoryFilmStorage extends AbstractStorage<Film> implements FilmSt
     }
 
     @Override
-    public Film addLike(Long filmId, Long userId) {
+    public Optional<Film> addLike(Long filmId, Long userId) {
         return null;
     }
 
     @Override
-    public Film removeLike(Long filmId, Long userId) {
+    public Optional<Film> removeLike(Long filmId, Long userId) {
         return null;
     }
 

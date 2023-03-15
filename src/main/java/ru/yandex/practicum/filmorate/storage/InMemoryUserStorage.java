@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Component
 public class InMemoryUserStorage extends AbstractStorage<User> implements UserStorage {
@@ -41,7 +42,7 @@ public class InMemoryUserStorage extends AbstractStorage<User> implements UserSt
     }
 
     @Override
-    public User deleteFriend(Long userId, Long friendId) {
+    public Optional<User> deleteFriend(Long userId, Long friendId) {
         return null;
     }
 }

@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Primary
@@ -38,13 +39,16 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film getById(Long id) {
+    public Optional<Film> getById(Long id) {
         String sqlQuery = "SELECT * " +
                 "FROM film " +
                 "INNER JOIN mpa_rating ON film.mpa_rating_id = mpa_rating.mpa_rating_id " +
                 "WHERE film.film_id = ? " +
                 "AND film.deleted_at IS NULL";
-        return jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeFilm(rs), id);
+
+        Film film = jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeFilm(rs), id);
+
+        return film == null ? Optional.empty() : Optional.of(film);
     }
 
     @Override
@@ -79,9 +83,9 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film delete(Long id) {
+    public Optional<Film> delete(Long id) {
         String sqlQuery = "DELETE FROM film WHERE film.film_id = ? AND film.deleted_at IS NULL";
-        Film film = getById(id);
+        Optional<Film> film = getById(id);
         jdbcTemplate.update(sqlQuery, id);
 
         return film;
@@ -107,7 +111,7 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
-    public Film addLike(Long filmId, Long userId) {
+    public Optional<Film> addLike(Long filmId, Long userId) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("film_like")
                 .usingColumns("film_id", "user_id", "created_at");
@@ -124,7 +128,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film removeLike(Long filmId, Long userId) {
+    public Optional<Film> removeLike(Long filmId, Long userId) {
         String sqlQuery = "UPDATE film_like " +
                 "SET film_like.deleted_at = ? " +
                 "WHERE film_like.film_id = ? " +

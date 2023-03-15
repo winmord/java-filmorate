@@ -6,15 +6,13 @@ import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,14 +45,14 @@ public class FilmService {
     }
 
     public Film getFilmById(Long id) {
-        try {
-            Film film = filmStorage.getById(id);
-            film.setGenres(filmStorage.getGenres(id).stream().map(genreDbStorage::getById).collect(Collectors.toSet()));
+        Optional<Film> film = filmStorage.getById(id);
 
-            return film;
-        } catch (Exception e) {
+        if (film.isEmpty()) {
             throw new FilmDoesNotExistException(String.format("Фильм %s не существует", id));
         }
+
+        film.get().setGenres(filmStorage.getGenres(id).stream().map(genreDbStorage::getById).collect(Collectors.toSet()));
+        return film.get();
     }
 
     public Film updateFilm(Film film) {
@@ -70,16 +68,28 @@ public class FilmService {
     }
 
     public Film addLike(Long filmId, Long userId) {
-        return filmStorage.addLike(filmId, userId);
+        Optional<Film> film = filmStorage.addLike(filmId, userId);
+
+        if (film.isEmpty()) {
+            throw new FilmDoesNotExistException(String.format("Фильм %s не существует", filmId));
+        }
+
+        return film.get();
     }
 
     public Film removeLike(Long filmId, Long userId) {
-        try {
-            userStorage.getById(userId);
-            return filmStorage.removeLike(filmId, userId);
-        } catch (Exception e) {
+        Optional<User> user = userStorage.getById(userId);
+        Optional<Film> film = filmStorage.removeLike(filmId, userId);
+
+        if (user.isEmpty()) {
             throw new UserDoesNotExistException(String.format("Пользователь %s не существует", userId));
         }
+
+        if (film.isEmpty()) {
+            throw new FilmDoesNotExistException(String.format("Фильм %s не существует", filmId));
+        }
+
+        return film.get();
     }
 
     public Collection<Film> getTop(Integer count) {

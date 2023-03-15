@@ -40,11 +40,12 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        try {
-            return userStorage.getById(id);
-        } catch (Exception e) {
+        Optional<User> user = userStorage.getById(id);
+        if (user.isEmpty()) {
             throw new UserDoesNotExistException(String.format("Пользователь %s не существует", id));
         }
+
+        return user.get();
     }
 
     public User addFriend(Long userId, Long friendId) {
@@ -61,7 +62,12 @@ public class UserService {
     }
 
     public User deleteFriend(Long userId, Long friendId) {
-        return userStorage.deleteFriend(userId, friendId);
+        Optional<User> user = userStorage.deleteFriend(userId, friendId);
+        if (user.isEmpty()) {
+            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", friendId));
+        }
+
+        return user.get();
     }
 
     public List<User> getCommonFriends(Long userId, Long friendId) {
