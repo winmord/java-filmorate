@@ -31,9 +31,13 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Optional<User> getById(Long id) {
         String sqlQuery = "SELECT * FROM users WHERE users.user_id = ? AND users.deleted_at IS NULL";
-        User user = jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeUser(rs), id);
 
-        return user == null ? Optional.empty() : Optional.of(user);
+        try {
+            User user = jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeUser(rs), id);
+            return Optional.of(user);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -52,9 +56,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<User> delete(Long id) {
-        String sqlQuery = "DELETE FROM users WHERE users.user_id = ? AND users.deleted_at IS NULL";
+        String sqlQuery = "UPDATE users SET users.deleted_at = ? WHERE users.user_id = ? AND users.deleted_at IS NULL";
         Optional<User> user = getById(id);
-        jdbcTemplate.update(sqlQuery, id);
+        jdbcTemplate.update(sqlQuery, Instant.now(), id);
 
         return user;
     }
