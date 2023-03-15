@@ -58,15 +58,15 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
-        try {
-            Set<Genre> genres = film.getGenres().stream()
-                    .sorted(Comparator.comparing(Genre::getId))
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
-
-            return filmStorage.update(film).toBuilder().genres(genres).build();
-        } catch (Exception e) {
+        if (film.getId() == null) {
             throw new FilmDoesNotExistException(String.format("Фильм %s не существует", film.getId()));
         }
+
+        Set<Genre> genres = film.getGenres().stream()
+                .sorted(Comparator.comparing(Genre::getId))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        return filmStorage.update(film).toBuilder().genres(genres).build();
     }
 
     public Film addLike(Long filmId, Long userId) {

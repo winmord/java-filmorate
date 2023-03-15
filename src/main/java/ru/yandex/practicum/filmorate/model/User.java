@@ -42,6 +42,9 @@ public class User {
     @JsonIgnore
     Set<Long> friends = new HashSet<>();
 
+    @JsonIgnore
     Instant createdAt;
+
+    @JsonIgnore
     Instant deletedAt;
 }

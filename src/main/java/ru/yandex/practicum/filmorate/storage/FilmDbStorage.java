@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -90,10 +89,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        if (getById(film.getId()) == null) {
-            throw new FilmDoesNotExistException(String.format("Фильм %s не существует", film.getId()));
-        }
-
         String sqlQuery = "UPDATE film " +
                 "SET film.name = ?, film.description = ?, film.release_date = ?, film.duration = ?, film.mpa_rating_id = ? " +
                 "WHERE film.film_id = ? AND film.deleted_at IS NULL";

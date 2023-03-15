@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.ResultSet;
@@ -63,10 +62,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        if (getById(user.getId()) == null) {
-            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", user.getId()));
-        }
-
         String sqlQuery = "UPDATE users " +
                 "SET users.email = ?, users.login = ?, users.name = ?, users.birthday = ? " +
                 "WHERE users.user_id = ? AND users.deleted_at IS NULL";

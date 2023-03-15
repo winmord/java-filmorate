@@ -32,11 +32,11 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        try {
-            return userStorage.update(user);
-        } catch (Exception e) {
+        if (user.getId() == null) {
             throw new UserDoesNotExistException(String.format("Пользователь %s не существует", user.getId()));
         }
+
+        return userStorage.update(user);
     }
 
     public User getUserById(Long id) {
