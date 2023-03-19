@@ -7,7 +7,9 @@ import ru.yandex.practicum.filmorate.storage.AbstractStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class InMemoryUserStorage extends AbstractStorage<User> implements UserStorage {
@@ -40,16 +42,30 @@ public class InMemoryUserStorage extends AbstractStorage<User> implements UserSt
 
     @Override
     public Collection<User> getFriends(Long id) {
-        return null;
+        validate(id);
+
+        Optional<User> user = super.getById(id);
+
+        return user.<Collection<User>>map(user1 -> user1.getFriends().stream()
+                        .map(value -> super.getById(value).get())
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
     }
 
     @Override
     public Optional<User> deleteFriend(Long userId, Long friendId) {
-        return null;
+        validate(userId);
+        validate(friendId);
+
+        Optional<User> user = super.getById(userId);
+
+        user.ifPresent(value -> value.getFriends().remove(friendId));
+
+        return user;
     }
 
     @Override
     public Optional<User> confirmFriendship(Long userId, Long friendId) {
-        return Optional.empty();
+        return super.getById(userId);
     }
 }
