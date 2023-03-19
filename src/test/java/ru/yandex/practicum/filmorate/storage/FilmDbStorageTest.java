@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.impl.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.impl.UserDbStorage;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
@@ -80,7 +79,6 @@ class FilmDbStorageTest {
                 .releaseDate(LocalDate.of(1946, Month.AUGUST, 20))
                 .duration(100)
                 .mpa(new Mpa(1, null))
-                .createdAt(Instant.now())
                 .build();
 
         Film secondFilm = Film.builder()
@@ -89,7 +87,6 @@ class FilmDbStorageTest {
                 .releaseDate(LocalDate.of(1926, Month.AUGUST, 20))
                 .duration(101)
                 .mpa(new Mpa(1, null))
-                .createdAt(Instant.now())
                 .build();
 
         filmStorage.create(firstFilm);
@@ -110,7 +107,6 @@ class FilmDbStorageTest {
                 .duration(100)
                 .likes(new HashSet<>())
                 .mpa(new Mpa(1, null))
-                .createdAt(Instant.now())
                 .build();
 
         filmStorage.create(film);
@@ -133,7 +129,6 @@ class FilmDbStorageTest {
                 .duration(100)
                 .likes(new HashSet<>())
                 .mpa(new Mpa(1, null))
-                .createdAt(Instant.now())
                 .build();
 
         filmStorage.create(film);
@@ -156,7 +151,6 @@ class FilmDbStorageTest {
                 .duration(100)
                 .likes(new HashSet<>())
                 .mpa(new Mpa(1, null))
-                .createdAt(Instant.now())
                 .build();
 
         filmStorage.create(film);
@@ -184,7 +178,6 @@ class FilmDbStorageTest {
                 .duration(100)
                 .likes(new HashSet<>())
                 .mpa(new Mpa(1, null))
-                .createdAt(Instant.now())
                 .build();
 
         filmStorage.create(film);
@@ -220,7 +213,6 @@ class FilmDbStorageTest {
                 .duration(100)
                 .likes(new HashSet<>())
                 .mpa(new Mpa(1, null))
-                .createdAt(Instant.now())
                 .build();
 
         User user = User.builder()
@@ -229,7 +221,6 @@ class FilmDbStorageTest {
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         filmStorage.create(film);
@@ -253,7 +244,6 @@ class FilmDbStorageTest {
                 .duration(100)
                 .likes(new HashSet<>())
                 .mpa(new Mpa(1, null))
-                .createdAt(Instant.now())
                 .build();
 
         User user = User.builder()
@@ -262,7 +252,6 @@ class FilmDbStorageTest {
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         filmStorage.create(film);
@@ -291,7 +280,6 @@ class FilmDbStorageTest {
                 .releaseDate(LocalDate.of(1946, Month.AUGUST, 20))
                 .duration(100)
                 .mpa(new Mpa(1, "G"))
-                .createdAt(Instant.now())
                 .build();
 
         Film secondFilm = Film.builder()
@@ -300,7 +288,6 @@ class FilmDbStorageTest {
                 .releaseDate(LocalDate.of(1926, Month.AUGUST, 20))
                 .duration(101)
                 .mpa(new Mpa(1, "G"))
-                .createdAt(Instant.now())
                 .build();
 
         filmStorage.create(firstFilm);
@@ -312,7 +299,6 @@ class FilmDbStorageTest {
                 .email("mail1@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         User secondUser = User.builder()
@@ -321,7 +307,6 @@ class FilmDbStorageTest {
                 .email("mail2@mail.ru")
                 .birthday(LocalDate.of(1956, Month.APRIL, 2))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         userStorage.create(firstUser);
@@ -354,7 +339,6 @@ class FilmDbStorageTest {
                 .likes(new HashSet<>())
                 .mpa(new Mpa(1, null))
                 .genres(Set.of(new Genre(genreId, null)))
-                .createdAt(Instant.now())
                 .build();
 
         filmStorage.create(film);

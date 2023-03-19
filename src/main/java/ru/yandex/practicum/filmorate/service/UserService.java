@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -27,7 +26,6 @@ public class UserService {
             user.setName(user.getLogin());
         }
 
-        user.setCreatedAt(Instant.now());
         return userStorage.create(user);
     }
 

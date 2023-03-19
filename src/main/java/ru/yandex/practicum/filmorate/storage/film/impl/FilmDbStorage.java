@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -88,9 +87,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> delete(Long id) {
-        String sqlQuery = "DELETE FROM film WHERE film.film_id = ? AND film.deleted_at IS NULL";
+        String sqlQuery = "UPDATE film " +
+                "SET film.deleted_at = ? " +
+                "WHERE film.film_id = ? AND film.deleted_at IS NULL";
+
         Optional<Film> film = getById(id);
-        jdbcTemplate.update(sqlQuery, id);
+        jdbcTemplate.update(sqlQuery, Instant.now(), id);
 
         return film;
     }
@@ -182,8 +184,7 @@ public class FilmDbStorage implements FilmStorage {
         values.put("release_date", film.getReleaseDate());
         values.put("duration", film.getDuration());
         values.put("mpa_rating_id", film.getMpa().getId());
-        values.put("created_at", film.getCreatedAt());
-        values.put("deleted_at", film.getDeletedAt());
+        values.put("created_at", Instant.now());
         return values;
     }
 
@@ -195,8 +196,6 @@ public class FilmDbStorage implements FilmStorage {
         Integer duration = rs.getInt("film.duration");
         Integer mpaRatingId = rs.getInt("mpa_rating_id");
         String mpaRatingName = rs.getString("mpa_rating.name");
-        Instant createdAt = rs.getTimestamp("film.created_at").toInstant();
-        Timestamp deletedAt = rs.getTimestamp("film.deleted_at");
 
         return Film.builder()
                 .id(id)
@@ -205,8 +204,6 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(releaseDate)
                 .duration(duration)
                 .mpa(new Mpa(mpaRatingId, mpaRatingName))
-                .createdAt(createdAt)
-                .deletedAt(deletedAt == null ? null : deletedAt.toInstant())
                 .build();
     }
 }

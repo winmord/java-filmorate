@@ -11,9 +11,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -36,23 +37,4 @@ public class Film {
     Set<Long> likes = new HashSet<>();
     Mpa mpa;
     Set<Genre> genres = new LinkedHashSet<>();
-
-    @JsonIgnore
-    Instant createdAt;
-
-    @JsonIgnore
-    Instant deletedAt;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Film film = (Film) o;
-        return id.equals(film.id) && Objects.equals(name, film.name) && Objects.equals(description, film.description) && releaseDate.equals(film.releaseDate) && Objects.equals(duration, film.duration) && Objects.equals(likes, film.likes) && Objects.equals(mpa, film.mpa) && Objects.equals(genres, film.genres);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description, releaseDate, duration, likes, mpa, genres);
-    }
 }

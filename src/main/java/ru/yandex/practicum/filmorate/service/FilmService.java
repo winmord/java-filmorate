@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.impl.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,7 +39,6 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
-        film.setCreatedAt(Instant.now());
         return filmStorage.create(film);
     }
 

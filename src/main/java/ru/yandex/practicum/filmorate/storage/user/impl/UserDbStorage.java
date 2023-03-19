@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
@@ -128,8 +127,7 @@ public class UserDbStorage implements UserStorage {
         values.put("login", user.getLogin());
         values.put("name", user.getName());
         values.put("birthday", user.getBirthday());
-        values.put("created_at", user.getCreatedAt());
-        values.put("deleted_at", user.getDeletedAt());
+        values.put("created_at", Instant.now());
         return values;
     }
 
@@ -139,8 +137,6 @@ public class UserDbStorage implements UserStorage {
         String login = rs.getString("login");
         String name = rs.getString("name");
         LocalDate birthday = rs.getDate("birthday").toLocalDate();
-        Instant createdAt = rs.getTimestamp("created_at").toInstant();
-        Timestamp deletedAt = rs.getTimestamp("deleted_at");
 
         return User.builder()
                 .id(id)
@@ -149,8 +145,6 @@ public class UserDbStorage implements UserStorage {
                 .name(name)
                 .birthday(birthday)
                 .friends(new HashSet<>())
-                .createdAt(createdAt)
-                .deletedAt(deletedAt == null ? null : deletedAt.toInstant())
                 .build();
     }
 }

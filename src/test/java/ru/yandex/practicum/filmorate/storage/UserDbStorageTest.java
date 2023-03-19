@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.impl.UserDbStorage;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
@@ -64,7 +63,6 @@ class UserDbStorageTest {
                 .email("mail1@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         User secondUser = User.builder()
@@ -73,7 +71,6 @@ class UserDbStorageTest {
                 .email("mail2@mail.ru")
                 .birthday(LocalDate.of(1956, Month.APRIL, 2))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         userStorage.create(firstUser);
@@ -93,7 +90,6 @@ class UserDbStorageTest {
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         userStorage.create(user);
@@ -115,7 +111,6 @@ class UserDbStorageTest {
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         userStorage.create(user);
@@ -137,7 +132,6 @@ class UserDbStorageTest {
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         userStorage.create(user);
@@ -164,7 +158,6 @@ class UserDbStorageTest {
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         userStorage.create(user);
@@ -196,7 +189,6 @@ class UserDbStorageTest {
                 .email("mail1@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         User friend = User.builder()
@@ -205,7 +197,6 @@ class UserDbStorageTest {
                 .email("mail2@mail.ru")
                 .birthday(LocalDate.of(1956, Month.APRIL, 2))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         userStorage.create(user);
@@ -225,7 +216,6 @@ class UserDbStorageTest {
                 .email("mail1@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         User friend = User.builder()
@@ -234,7 +224,6 @@ class UserDbStorageTest {
                 .email("mail2@mail.ru")
                 .birthday(LocalDate.of(1956, Month.APRIL, 2))
                 .friends(new HashSet<>())
-                .createdAt(Instant.now())
                 .build();
 
         userStorage.create(user);
