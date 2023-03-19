@@ -53,15 +53,16 @@
   ```
 - Получить Топ-10 фильмов по количеству лайков
   ```sql
-    SELECT film.*
-    FROM (SELECT film_like.film_id
+    SELECT *
+    FROM film
+        LEFT JOIN (SELECT film_id, count(film_like.film_id) AS count
           FROM film_like
-          WHERE film_like.deleted_at ISNULL
-          GROUP BY film_like.film_id
-          ORDER BY count(film_like.film_id) DESC
-          LIMIT 10) AS top
-    INNER JOIN film ON top.film_id = film.film_id
-    WHERE film.deleted_at ISNULL;
+          WHERE film_like.deleted_at IS NULL
+          GROUP BY film_like.film_id) AS top ON top.film_id = film.film_id
+             INNER JOIN mpa_rating ON film.mpa_rating_id = mpa_rating.mpa_rating_id
+    WHERE film.deleted_at IS NULL
+    ORDER BY count DESC
+    LIMIT 10;
   ```
   
   
