@@ -19,4 +19,6 @@ public interface UserStorage {
     Collection<User> getFriends(Long id);
 
     Optional<User> deleteFriend(Long userId, Long friendId);
+
+    Optional<User> confirmFriendship(Long userId, Long friendId);
 }

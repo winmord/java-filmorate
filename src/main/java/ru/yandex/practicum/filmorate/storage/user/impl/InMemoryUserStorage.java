@@ -47,4 +47,9 @@ public class InMemoryUserStorage extends AbstractStorage<User> implements UserSt
     public Optional<User> deleteFriend(Long userId, Long friendId) {
         return null;
     }
+
+    @Override
+    public Optional<User> confirmFriendship(Long userId, Long friendId) {
+        return Optional.empty();
+    }
 }

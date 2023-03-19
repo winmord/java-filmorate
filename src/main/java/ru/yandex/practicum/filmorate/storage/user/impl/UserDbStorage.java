@@ -121,6 +121,20 @@ public class UserDbStorage implements UserStorage {
         return getById(userId);
     }
 
+    public Optional<User> confirmFriendship(Long userId, Long friendId) {
+        String sqlQuery = "UPDATE friendship " +
+                "SET friendship.confirmed_at = ? " +
+                "WHERE friendship.user_id = ? AND friendship.friend_id = ? " +
+                "AND friendship.deleted_at IS NULL";
+
+        jdbcTemplate.update(sqlQuery,
+                Instant.now(),
+                userId,
+                friendId);
+
+        return getById(userId);
+    }
+
     private Map<String, Object> userToMap(User user) {
         Map<String, Object> values = new HashMap<>();
         values.put("email", user.getEmail());

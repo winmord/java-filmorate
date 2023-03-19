@@ -47,20 +47,28 @@ public class UserService {
     }
 
     public User addFriend(Long userId, Long friendId) {
-        try {
-            User user = getUserById(userId);
+        User user = getUserById(userId);
+        User friend = getUserById(friendId);
 
-            Set<Long> userFriends = user.getFriends();
-            userFriends.add(friendId);
+        Set<Long> userFriends = user.getFriends();
+        userFriends.add(friendId);
 
-            return userStorage.update(user);
-        } catch (Exception e) {
-            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", friendId));
+        Set<Long> friendFriends = friend.getFriends();
+
+        if (friendFriends.contains(userId)) {
+            userStorage.confirmFriendship(userId, friendId);
+            userStorage.confirmFriendship(friendId, userId);
         }
+
+        return userStorage.update(user);
     }
 
     public User deleteFriend(Long userId, Long friendId) {
+        getUserById(userId);
+        getUserById(friendId);
+
         Optional<User> user = userStorage.deleteFriend(userId, friendId);
+
         if (user.isEmpty()) {
             throw new UserDoesNotExistException(String.format("Пользователь %s не существует", friendId));
         }

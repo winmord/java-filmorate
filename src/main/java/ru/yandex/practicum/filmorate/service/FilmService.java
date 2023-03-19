@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.impl.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -54,9 +53,7 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
-        if (filmStorage.getById(film.getId()).isEmpty()) {
-            throw new FilmDoesNotExistException(String.format("Фильм %s не существует", film.getId()));
-        }
+        getFilmById(film.getId());
 
         Set<Genre> genres = film.getGenres().stream()
                 .sorted(Comparator.comparing(Genre::getId))
@@ -66,6 +63,10 @@ public class FilmService {
     }
 
     public Film addLike(Long filmId, Long userId) {
+        if (userStorage.getById(userId).isEmpty()) {
+            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", userId));
+        }
+
         Optional<Film> film = filmStorage.addLike(filmId, userId);
 
         if (film.isEmpty()) {
@@ -76,10 +77,9 @@ public class FilmService {
     }
 
     public Film removeLike(Long filmId, Long userId) {
-        Optional<User> user = userStorage.getById(userId);
         Optional<Film> film = filmStorage.removeLike(filmId, userId);
 
-        if (user.isEmpty()) {
+        if (userStorage.getById(userId).isEmpty()) {
             throw new UserDoesNotExistException(String.format("Пользователь %s не существует", userId));
         }
 
