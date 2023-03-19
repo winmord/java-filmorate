@@ -23,4 +23,6 @@ public interface FilmStorage {
     Collection<Film> getTop(Integer topCount);
 
     Collection<Integer> getGenres(Long id);
+
+    Collection<Long> getLikes(Long id);
 }

@@ -32,7 +32,7 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        if (user.getId() == null) {
+        if (userStorage.getById(user.getId()).isEmpty()) {
             throw new UserDoesNotExistException(String.format("Пользователь %s не существует", user.getId()));
         }
 

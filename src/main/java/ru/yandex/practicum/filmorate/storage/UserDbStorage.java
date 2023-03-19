@@ -34,7 +34,7 @@ public class UserDbStorage implements UserStorage {
 
         try {
             User user = jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeUser(rs), id);
-            return Optional.of(user);
+            return Optional.ofNullable(user);
         } catch (Exception e) {
             return Optional.empty();
         }

@@ -46,9 +46,12 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE film.film_id = ? " +
                 "AND film.deleted_at IS NULL";
 
-        Film film = jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeFilm(rs), id);
-
-        return film == null ? Optional.empty() : Optional.of(film);
+        try {
+            Film film = jdbcTemplate.queryForObject(sqlQuery, (rs, rowNum) -> makeFilm(rs), id);
+            return Optional.ofNullable(film);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -145,17 +148,16 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getTop(Integer topCount) {
-        String sqlQuery = "SELECT * FROM " +
-                "(SELECT film_like.film_id " +
-                "FROM film_like " +
-                "WHERE film_like.deleted_at IS NULL " +
-                "GROUP BY film_like.film_id " +
-                "ORDER BY count(film_like.film_id) DESC) AS top " +
-                "RIGHT JOIN film ON top.film_id = film.film_id " +
-                "INNER JOIN mpa_rating ON film.mpa_rating_id = mpa_rating.mpa_rating_id " +
+        String sqlQuery = "SELECT * " +
+                "FROM film" +
+                "    LEFT JOIN (SELECT film_id, count(film_like.film_id) AS count " +
+                "      FROM film_like " +
+                "      WHERE film_like.deleted_at IS NULL " +
+                "      GROUP BY film_like.film_id) AS top ON top.film_id = film.film_id " +
+                "         INNER JOIN mpa_rating ON film.mpa_rating_id = mpa_rating.mpa_rating_id " +
                 "WHERE film.deleted_at IS NULL " +
-                "ORDER BY top.FILM_ID DESC " +
-                "LIMIT ?";
+                "ORDER BY count DESC " +
+                "LIMIT ?;";
 
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), topCount);
     }
@@ -164,6 +166,12 @@ public class FilmDbStorage implements FilmStorage {
     public Collection<Integer> getGenres(Long id) {
         String sqlQuery = "SELECT film_genre.genre_id FROM film_genre WHERE film_genre.film_id = ?";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> rs.getInt("genre_id"), id);
+    }
+
+    @Override
+    public Collection<Long> getLikes(Long id) {
+        String sqlQuery = "SELECT film_like.user_id FROM film_like WHERE film_like.film_id = ? AND film_like.deleted_at IS NULL";
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> rs.getLong("user_id"), id);
     }
 
     private Map<String, Object> filmToMap(Film film) {

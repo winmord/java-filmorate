@@ -56,7 +56,7 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
-        if (film.getId() == null) {
+        if (filmStorage.getById(film.getId()).isEmpty()) {
             throw new FilmDoesNotExistException(String.format("Фильм %s не существует", film.getId()));
         }
 

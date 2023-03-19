@@ -49,4 +49,9 @@ public class InMemoryFilmStorage extends AbstractStorage<Film> implements FilmSt
     public Collection<Integer> getGenres(Long id) {
         return Collections.emptyList();
     }
+
+    @Override
+    public Collection<Long> getLikes(Long id) {
+        return null;
+    }
 }
