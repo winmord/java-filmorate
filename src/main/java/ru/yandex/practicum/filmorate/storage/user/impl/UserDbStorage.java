@@ -127,10 +127,17 @@ public class UserDbStorage implements UserStorage {
                 "WHERE friendship.user_id = ? AND friendship.friend_id = ? " +
                 "AND friendship.deleted_at IS NULL";
 
+        Instant confirmTime = Instant.now();
+
         jdbcTemplate.update(sqlQuery,
-                Instant.now(),
+                confirmTime,
                 userId,
                 friendId);
+
+        jdbcTemplate.update(sqlQuery,
+                confirmTime,
+                friendId,
+                userId);
 
         return getById(userId);
     }

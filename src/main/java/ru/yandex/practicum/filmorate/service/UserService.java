@@ -57,7 +57,6 @@ public class UserService {
 
         if (friendFriends.contains(userId)) {
             userStorage.confirmFriendship(userId, friendId);
-            userStorage.confirmFriendship(friendId, userId);
         }
 
         return userStorage.update(user);
