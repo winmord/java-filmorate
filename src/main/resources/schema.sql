@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS film
     release_date  date      NOT NULL,
     duration      INTEGER   NOT NULL,
     mpa_rating_id INTEGER REFERENCES mpa_rating (mpa_rating_id),
-    created_at    timestamp NOT NULL,
+    created_at    timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at    timestamp
 );
 
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS users
     login      varchar   NOT NULL,
     name       varchar   NOT NULL,
     birthday   date      NOT NULL,
-    created_at timestamp NOT NULL,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at timestamp
 );
 
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS friendship
 (
     user_id      INTEGER REFERENCES users (user_id),
     friend_id    INTEGER REFERENCES users (user_id),
-    created_at   timestamp NOT NULL,
+    created_at   timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     confirmed_at timestamp,
     deleted_at   timestamp,
     PRIMARY KEY (user_id, friend_id)
@@ -55,7 +55,10 @@ CREATE TABLE IF NOT EXISTS film_like
 (
     film_id    INTEGER REFERENCES film (film_id),
     user_id    INTEGER REFERENCES users (user_id),
-    created_at timestamp NOT NULL,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     deleted_at timestamp,
     PRIMARY KEY (film_id, user_id)
 );
+
+CREATE INDEX IF NOT EXISTS film_deleted_at_idx on film(deleted_at);
+CREATE INDEX IF NOT EXISTS user_deleted_at_idx on users(deleted_at);

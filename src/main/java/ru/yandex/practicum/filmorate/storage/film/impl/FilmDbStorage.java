@@ -58,7 +58,8 @@ public class FilmDbStorage implements FilmStorage {
     public Film create(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("film")
-                .usingGeneratedKeyColumns("film_id");
+                .usingGeneratedKeyColumns("film_id")
+                .usingColumns("name", "description", "release_date", "duration", "mpa_rating_id");
 
         Long filmId = simpleJdbcInsert.executeAndReturnKey(filmToMap(film)).longValue();
         film.setId(filmId);
@@ -120,13 +121,12 @@ public class FilmDbStorage implements FilmStorage {
     public Optional<Film> addLike(Long filmId, Long userId) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("film_like")
-                .usingColumns("film_id", "user_id", "created_at");
+                .usingColumns("film_id", "user_id");
 
 
         simpleJdbcInsert.execute(
                 Map.of("film_id", filmId,
-                        "user_id", userId,
-                        "created_at", Instant.now()
+                        "user_id", userId
                 )
         );
 
@@ -184,7 +184,6 @@ public class FilmDbStorage implements FilmStorage {
         values.put("release_date", film.getReleaseDate());
         values.put("duration", film.getDuration());
         values.put("mpa_rating_id", film.getMpa().getId());
-        values.put("created_at", Instant.now());
         return values;
     }
 

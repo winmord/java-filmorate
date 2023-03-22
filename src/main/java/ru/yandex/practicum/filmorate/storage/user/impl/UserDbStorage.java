@@ -44,7 +44,8 @@ public class UserDbStorage implements UserStorage {
     public User create(User user) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
-                .usingGeneratedKeyColumns("user_id");
+                .usingGeneratedKeyColumns("user_id")
+                .usingColumns("email", "login", "name", "birthday");
 
         Long userId = simpleJdbcInsert.executeAndReturnKey(userToMap(user)).longValue();
         user.setId(userId);
@@ -84,13 +85,12 @@ public class UserDbStorage implements UserStorage {
     private void createUserFriendReference(User user) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("friendship")
-                .usingColumns("user_id", "friend_id", "created_at");
+                .usingColumns("user_id", "friend_id");
 
         for (Long friendId : user.getFriends()) {
             simpleJdbcInsert.execute(
                     Map.of("user_id", user.getId(),
-                            "friend_id", friendId,
-                            "created_at", Instant.now()
+                            "friend_id", friendId
                     )
             );
         }
@@ -100,11 +100,11 @@ public class UserDbStorage implements UserStorage {
         String sqlQuery = "SELECT * FROM users " +
                 "WHERE users.user_id IN (SELECT friend_id " +
                 "FROM friendship " +
-                "WHERE friendship.user_id = " + id.toString() +
-                " AND friendship.deleted_at IS NULL) " +
+                "WHERE friendship.user_id = ? " +
+                "AND friendship.deleted_at IS NULL) " +
                 "AND users.deleted_at IS NULL;";
 
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeUser(rs));
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeUser(rs), id);
     }
 
     public Optional<User> deleteFriend(Long userId, Long friendId) {
