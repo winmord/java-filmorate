@@ -46,7 +46,7 @@ class FilmDbStorageTest {
                 "    release_date  date      NOT NULL," +
                 "    duration      INTEGER   NOT NULL," +
                 "    mpa_rating_id INTEGER REFERENCES mpa_rating (mpa_rating_id)," +
-                "    created_at    timestamp NOT NULL," +
+                "    created_at    timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL," +
                 "    deleted_at    timestamp" +
                 ");");
 
@@ -57,7 +57,7 @@ class FilmDbStorageTest {
                 "    login      varchar   NOT NULL," +
                 "    name       varchar   NOT NULL," +
                 "    birthday   date      NOT NULL," +
-                "    created_at timestamp NOT NULL," +
+                "    created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL," +
                 "    deleted_at timestamp" +
                 ");");
 
@@ -65,7 +65,7 @@ class FilmDbStorageTest {
                 "(" +
                 "    film_id    INTEGER REFERENCES film (film_id)," +
                 "    user_id    INTEGER REFERENCES users (user_id)," +
-                "    created_at timestamp NOT NULL," +
+                "    created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL," +
                 "    deleted_at timestamp," +
                 "    PRIMARY KEY (film_id, user_id)" +
                 ");");
@@ -220,7 +220,6 @@ class FilmDbStorageTest {
                 .name("name")
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
-                .friends(new HashSet<>())
                 .build();
 
         filmStorage.create(film);
@@ -251,7 +250,6 @@ class FilmDbStorageTest {
                 .name("name")
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
-                .friends(new HashSet<>())
                 .build();
 
         filmStorage.create(film);
@@ -298,7 +296,6 @@ class FilmDbStorageTest {
                 .name("name1")
                 .email("mail1@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
-                .friends(new HashSet<>())
                 .build();
 
         User secondUser = User.builder()
@@ -306,7 +303,6 @@ class FilmDbStorageTest {
                 .name("name2")
                 .email("mail2@mail.ru")
                 .birthday(LocalDate.of(1956, Month.APRIL, 2))
-                .friends(new HashSet<>())
                 .build();
 
         userStorage.create(firstUser);

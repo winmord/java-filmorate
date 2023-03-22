@@ -21,7 +21,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.HashSet;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -51,7 +50,7 @@ class UserControllerTest {
                 "    login      varchar   NOT NULL," +
                 "    name       varchar   NOT NULL," +
                 "    birthday   date      NOT NULL," +
-                "    created_at timestamp NOT NULL," +
+                "    created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL," +
                 "    deleted_at timestamp" +
                 ");");
 
@@ -112,7 +111,6 @@ class UserControllerTest {
                 .name("name")
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
-                .friends(new HashSet<>())
                 .build();
 
         MvcResult result = mockMvc.perform(
@@ -176,7 +174,6 @@ class UserControllerTest {
                 .name("name")
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
-                .friends(new HashSet<>())
                 .build();
 
         Assertions

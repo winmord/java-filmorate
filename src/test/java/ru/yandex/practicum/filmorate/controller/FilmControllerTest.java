@@ -56,7 +56,7 @@ class FilmControllerTest {
                 "    release_date  date      NOT NULL," +
                 "    duration      INTEGER   NOT NULL," +
                 "    mpa_rating_id INTEGER REFERENCES mpa_rating (mpa_rating_id)," +
-                "    created_at    timestamp NOT NULL," +
+                "    created_at    timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL," +
                 "    deleted_at    timestamp" +
                 ");");
 

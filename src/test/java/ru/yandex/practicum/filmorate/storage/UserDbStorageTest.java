@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.storage.user.impl.UserDbStorage;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,14 +40,14 @@ class UserDbStorageTest {
                 "    login      varchar   NOT NULL," +
                 "    name       varchar   NOT NULL," +
                 "    birthday   date      NOT NULL," +
-                "    created_at timestamp NOT NULL," +
+                "    created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL," +
                 "    deleted_at timestamp" +
                 ");");
         jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS friendship" +
                 "(" +
                 "    user_id      INTEGER REFERENCES users (user_id)," +
                 "    friend_id    INTEGER REFERENCES users (user_id)," +
-                "    created_at   timestamp NOT NULL," +
+                "    created_at   timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL," +
                 "    confirmed_at timestamp," +
                 "    deleted_at   timestamp," +
                 "    PRIMARY KEY (user_id, friend_id)" +
@@ -62,7 +61,6 @@ class UserDbStorageTest {
                 .name("name1")
                 .email("mail1@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
-                .friends(new HashSet<>())
                 .build();
 
         User secondUser = User.builder()
@@ -70,7 +68,6 @@ class UserDbStorageTest {
                 .name("name2")
                 .email("mail2@mail.ru")
                 .birthday(LocalDate.of(1956, Month.APRIL, 2))
-                .friends(new HashSet<>())
                 .build();
 
         userStorage.create(firstUser);
@@ -89,7 +86,6 @@ class UserDbStorageTest {
                 .name("name")
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
-                .friends(new HashSet<>())
                 .build();
 
         userStorage.create(user);
@@ -110,7 +106,6 @@ class UserDbStorageTest {
                 .name("name")
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
-                .friends(new HashSet<>())
                 .build();
 
         userStorage.create(user);
@@ -131,7 +126,6 @@ class UserDbStorageTest {
                 .name("name")
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
-                .friends(new HashSet<>())
                 .build();
 
         userStorage.create(user);
@@ -157,7 +151,6 @@ class UserDbStorageTest {
                 .name("name")
                 .email("mail@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
-                .friends(new HashSet<>())
                 .build();
 
         userStorage.create(user);
@@ -188,7 +181,6 @@ class UserDbStorageTest {
                 .name("name1")
                 .email("mail1@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
-                .friends(new HashSet<>())
                 .build();
 
         User friend = User.builder()
@@ -196,12 +188,12 @@ class UserDbStorageTest {
                 .name("name2")
                 .email("mail2@mail.ru")
                 .birthday(LocalDate.of(1956, Month.APRIL, 2))
-                .friends(new HashSet<>())
                 .build();
 
         userStorage.create(user);
         userStorage.create(friend);
-        userStorage.update(user.toBuilder().friends(new HashSet<>(List.of(2L))).build());
+        userStorage.addFriend(user.getId(), friend.getId());
+
         List<User> friends = new ArrayList<>(userStorage.getFriends(1L));
 
         assertEquals(1, friends.size());
@@ -215,7 +207,6 @@ class UserDbStorageTest {
                 .name("name1")
                 .email("mail1@mail.ru")
                 .birthday(LocalDate.of(1946, Month.AUGUST, 20))
-                .friends(new HashSet<>())
                 .build();
 
         User friend = User.builder()
@@ -223,12 +214,12 @@ class UserDbStorageTest {
                 .name("name2")
                 .email("mail2@mail.ru")
                 .birthday(LocalDate.of(1956, Month.APRIL, 2))
-                .friends(new HashSet<>())
                 .build();
 
         userStorage.create(user);
         userStorage.create(friend);
-        userStorage.update(user.toBuilder().friends(new HashSet<>(List.of(2L))).build());
+        userStorage.addFriend(user.getId(), friend.getId());
+
         List<User> friends = new ArrayList<>(userStorage.getFriends(1L));
 
         assertEquals(1, friends.size());

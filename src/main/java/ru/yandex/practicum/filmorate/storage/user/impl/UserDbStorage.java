@@ -50,8 +50,6 @@ public class UserDbStorage implements UserStorage {
         Long userId = simpleJdbcInsert.executeAndReturnKey(userToMap(user)).longValue();
         user.setId(userId);
 
-        createUserFriendReference(user);
-
         return user;
     }
 
@@ -77,23 +75,21 @@ public class UserDbStorage implements UserStorage {
                 user.getBirthday(),
                 user.getId());
 
-        createUserFriendReference(user);
-
         return user;
     }
 
-    private void createUserFriendReference(User user) {
+    public Optional<User> addFriend(Long userId, Long friendId) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("friendship")
                 .usingColumns("user_id", "friend_id");
 
-        for (Long friendId : user.getFriends()) {
-            simpleJdbcInsert.execute(
-                    Map.of("user_id", user.getId(),
-                            "friend_id", friendId
-                    )
-            );
-        }
+        simpleJdbcInsert.execute(
+                Map.of("user_id", userId,
+                        "friend_id", friendId
+                )
+        );
+
+        return getById(userId);
     }
 
     public Collection<User> getFriends(Long id) {
@@ -165,7 +161,6 @@ public class UserDbStorage implements UserStorage {
                 .login(login)
                 .name(name)
                 .birthday(birthday)
-                .friends(new HashSet<>())
                 .build();
     }
 }

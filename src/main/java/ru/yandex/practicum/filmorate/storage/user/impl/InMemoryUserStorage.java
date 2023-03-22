@@ -6,13 +6,13 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.AbstractStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 public class InMemoryUserStorage extends AbstractStorage<User> implements UserStorage {
+    private final Map<Long, List<Long>> friends = new HashMap<>();
+
     @Override
     public void validate(Long id) {
         if (notContainsId(id)) {
@@ -41,12 +41,22 @@ public class InMemoryUserStorage extends AbstractStorage<User> implements UserSt
     }
 
     @Override
+    public Optional<User> addFriend(Long userId, Long friendId) {
+        List<Long> userFriends = friends.getOrDefault(userId, new ArrayList<>());
+        userFriends.add(friendId);
+
+        friends.put(userId, userFriends);
+
+        return getById(userId);
+    }
+
+    @Override
     public Collection<User> getFriends(Long id) {
         validate(id);
 
         Optional<User> user = super.getById(id);
 
-        return user.<Collection<User>>map(user1 -> user1.getFriends().stream()
+        return user.<Collection<User>>map(user1 -> friends.get(user1.getId()).stream()
                         .map(value -> super.getById(value).get())
                         .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
@@ -59,7 +69,7 @@ public class InMemoryUserStorage extends AbstractStorage<User> implements UserSt
 
         Optional<User> user = super.getById(userId);
 
-        user.ifPresent(value -> value.getFriends().remove(friendId));
+        user.ifPresent(value -> friends.get(value.getId()).remove(friendId));
 
         return user;
     }

@@ -48,14 +48,13 @@ public class UserService {
 
     public User addFriend(Long userId, Long friendId) {
         User user = getUserById(userId);
-        User friend = getUserById(friendId);
+        getUserById(friendId);
 
-        Set<Long> userFriends = user.getFriends();
-        userFriends.add(friendId);
+        userStorage.addFriend(userId, friendId);
 
-        Set<Long> friendFriends = friend.getFriends();
+        Set<User> friendFriends = new HashSet<>(userStorage.getFriends(friendId));
 
-        if (friendFriends.contains(userId)) {
+        if (friendFriends.contains(user)) {
             userStorage.confirmFriendship(userId, friendId);
         }
 
