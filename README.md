@@ -8,14 +8,14 @@
   ```sql
     SELECT *
     FROM user
-    WHERE user.deleted_at ISNULL;
+    WHERE user.deleted_at IS NULL;
   ```
 - Получить пользователя по id
   ```sql
     SELECT *
     FROM user
     WHERE user.user_id = target_id
-      AND user.deleted_at ISNULL;
+      AND user.deleted_at IS NULL;
   ```
 - Получить всех друзей пользователя (подтверждённых и неподтверждённых)
   ```sql
@@ -24,8 +24,8 @@
     WHERE user.user_id IN (SELECT friend_id
                            FROM friendship
                            WHERE friendship.user_id = target_id
-                             AND friendship.deleted_at ISNULL)
-      AND user.deleted_at ISNULL;
+                             AND friendship.deleted_at IS NULL)
+      AND user.deleted_at IS NULL;
   ```
 - Получить только подтверждённых друзей пользователя
   ```sql
@@ -34,22 +34,22 @@
     WHERE user.user_id IN (SELECT friend_id
                            FROM friendship
                            WHERE friendship.user_id = target_id
-                             AND friendship.confirmed_at NOTNULL
-                             AND friendship.deleted_at ISNULL)
-      AND user.deleted_at ISNULL;
+                             AND friendship.confirmed_at IS NOT NULL
+                             AND friendship.deleted_at IS NULL)
+      AND user.deleted_at IS NULL;
   ```
 - Получить все фильмы
   ```sql
     SELECT *
     FROM film
-    WHERE film.deleted_at ISNULL;
+    WHERE film.deleted_at IS NULL;
   ```
 - Получить фильм по id
   ```sql
     SELECT *
     FROM film
     WHERE film.film_id = target_id
-      AND user.deleted_at ISNULL;
+      AND user.deleted_at IS NULL;
   ```
 - Получить Топ-10 фильмов по количеству лайков
   ```sql
