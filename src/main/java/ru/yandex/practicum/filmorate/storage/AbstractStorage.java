@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class AbstractStorage<T> {
     private final Map<Long, T> data = new HashMap<>();
@@ -28,9 +29,9 @@ public class AbstractStorage<T> {
         return data.values();
     }
 
-    public T getById(Long id) {
+    public Optional<T> getById(Long id) {
         validate(id);
-        return data.get(id);
+        return Optional.of(data.get(id));
     }
 
     public void create(Long id, T t) {
@@ -38,8 +39,8 @@ public class AbstractStorage<T> {
         data.put(id, t);
     }
 
-    public T delete(Long id) {
-        return data.remove(id);
+    public Optional<T> delete(Long id) {
+        return Optional.of(data.remove(id));
     }
 
     public void update(Long id, T t) {

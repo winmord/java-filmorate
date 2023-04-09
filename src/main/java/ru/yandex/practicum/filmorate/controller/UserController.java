@@ -64,8 +64,8 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getAllFriends(@PathVariable Long id) {
-        List<User> friends = userService.getAllFriends(id);
+    public Collection<User> getAllFriends(@PathVariable Long id) {
+        Collection<User> friends = userService.getAllFriends(id);
         log.info("Запрошено {} друзей пользователя {}", friends.size(), id);
         return friends;
     }

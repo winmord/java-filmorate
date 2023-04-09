@@ -2,29 +2,39 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.FilmDoesNotExistException;
 import ru.yandex.practicum.filmorate.exception.UserDoesNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.impl.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.util.Collections.reverseOrder;
 
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
+
+    private final GenreDbStorage genreDbStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage, GenreDbStorage genreDbStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+        this.genreDbStorage = genreDbStorage;
     }
 
     public Collection<Film> getAllFilms() {
-        return filmStorage.getAll();
+        Collection<Film> films = filmStorage.getAll();
+
+        for (Film film : films) {
+            film.setGenres(filmStorage.getGenres(film.getId()).stream().map(genreDbStorage::getById).collect(Collectors.toSet()));
+        }
+
+        return films;
     }
 
     public Film addFilm(Film film) {
@@ -32,38 +42,61 @@ public class FilmService {
     }
 
     public Film getFilmById(Long id) {
-        return filmStorage.getById(id);
+        Optional<Film> film = filmStorage.getById(id);
+
+        if (film.isEmpty()) {
+            throw new FilmDoesNotExistException(String.format("Фильм %s не существует", id));
+        }
+
+        film.get().setGenres(filmStorage.getGenres(id).stream().map(genreDbStorage::getById).collect(Collectors.toSet()));
+        return film.get();
     }
 
     public Film updateFilm(Film film) {
-        return filmStorage.update(film);
+        getFilmById(film.getId());
+
+        Set<Genre> genres = film.getGenres().stream()
+                .sorted(Comparator.comparing(Genre::getId))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        return filmStorage.update(film).toBuilder().genres(genres).build();
     }
 
     public Film addLike(Long filmId, Long userId) {
-        Film film = filmStorage.getById(filmId);
-        Set<Long> likes = film.getLikes();
-        likes.add(userId);
+        if (userStorage.getById(userId).isEmpty()) {
+            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", userId));
+        }
 
-        return filmStorage.update(film);
+        Optional<Film> film = filmStorage.addLike(filmId, userId);
+
+        if (film.isEmpty()) {
+            throw new FilmDoesNotExistException(String.format("Фильм %s не существует", filmId));
+        }
+
+        return film.get();
     }
 
     public Film removeLike(Long filmId, Long userId) {
-        Film film = filmStorage.getById(filmId);
-        Set<Long> likes = film.getLikes();
+        Optional<Film> film = filmStorage.removeLike(filmId, userId);
 
-        if (!likes.contains(userId)) {
-            throw new UserDoesNotExistException("Не существует лайка от пользователя " + userId);
+        if (userStorage.getById(userId).isEmpty()) {
+            throw new UserDoesNotExistException(String.format("Пользователь %s не существует", userId));
         }
 
-        likes.remove(userId);
+        if (film.isEmpty()) {
+            throw new FilmDoesNotExistException(String.format("Фильм %s не существует", filmId));
+        }
 
-        return filmStorage.update(film);
+        return film.get();
     }
 
-    public List<Film> getTop(Integer count) {
-        return filmStorage.getAll().stream()
-                .sorted(reverseOrder(Comparator.comparingInt(o -> o.getLikes().size())))
-                .limit(count)
-                .collect(Collectors.toList());
+    public Collection<Film> getTop(Integer count) {
+        Collection<Film> films = filmStorage.getTop(count);
+
+        for (Film film : films) {
+            film.setGenres(filmStorage.getGenres(film.getId()).stream().map(genreDbStorage::getById).collect(Collectors.toSet()));
+        }
+
+        return films;
     }
 }
